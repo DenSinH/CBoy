@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "../MEM/MEM.h"
 
 #define CLOCK_SPEED 4194304
 
@@ -18,6 +19,7 @@ typedef struct {
     uint8_t A, B, C, D, E, H, L;
     uint16_t SP, PC;
     s_flags flags;
+    s_MEM* mem;
 } s_Z80;
 
 #endif //CBOY_CPU_H

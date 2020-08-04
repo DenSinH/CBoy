@@ -7,6 +7,7 @@ ADD_EXECUTABLE(
     CBoy
         main.c
         include/log.h
+        include/default.h
         src/System/GB.c
         src/System/GB.h
         src/System/CPU/Z80.c

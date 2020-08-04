@@ -1,10 +1,27 @@
 #include <stdlib.h>
 
-#include "log.h"
 #include "MEM.h"
 
-void load_rom(s_MEM* mem, char filename[]) {
+#include "default.h"
+#include "log.h"
 
+
+
+void load_rom(s_MEM* mem, char file_name[]) {
+    FILE* file = fopen(file_name, "rb");
+    if (!file) log_fatal("failed read");
+
+    fseek(file, 0, SEEK_END);
+    int f_size = ftell(file);
+    rewind(file);
+
+    // read first bytes
+    fread(mem->ROM_b00, 1, MIN(f_size, sizeof(mem->ROM_b00)), file);
+    // read last bytes, if any leftover
+    fread(mem->ROM_bNN, 1, MAX(0, f_size - sizeof(mem->ROM_b00)), file);
+    fclose(file);
+
+    printf("Read %i bytes\n", f_size);
 }
 
 struct address_data {

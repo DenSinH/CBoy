@@ -17,7 +17,7 @@ typedef struct {
 } s_MEM;
 
 
-void load_rom(s_MEM* mem, char filename[]);
+void load_rom(s_MEM* mem, char file_name[]);
 uint8_t read_byte(s_MEM* mem, uint16_t address);
 uint16_t read_short(s_MEM* mem, uint16_t address);
 void write_byte(s_MEM* mem, uint16_t address, uint8_t value);
