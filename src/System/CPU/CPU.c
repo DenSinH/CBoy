@@ -11,6 +11,7 @@ void step(s_CPU* cpu) {
         cpu->prefixed[instruction](cpu, instruction);
     }
     else {
-        cpu->prefixed[instruction](cpu, instruction);
+        // unprefixed instruction
+        cpu->unprefixed[instruction](cpu, instruction);
     }
 }

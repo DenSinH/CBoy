@@ -34,6 +34,9 @@ struct address_data {
 };
 
 struct address_data get_address_data__(s_MEM* mem, uint16_t address) {
+    /*
+     * get memory section pointer / masked address based on address
+     * */
     struct address_data data = {};
 
     switch(address >> 12) {
@@ -113,20 +116,24 @@ struct address_data get_address_data__(s_MEM* mem, uint16_t address) {
 }
 
 uint8_t read_byte(s_MEM* mem, uint16_t address) {
+    /* read single byte from memory */
     struct address_data data = get_address_data__(mem, address);
     return data.section[data.masked_address];
 }
 
 uint16_t read_short(s_MEM* mem, uint16_t address) {
-    return ((uint16_t)read_byte(mem, address)) | (((uint16_t)read_byte(mem, address + 1)) << 8);
+    /* read short from memory */
+    return (uint16_t)(read_byte(mem, address) | (read_byte(mem, address + 1) << 8));
 }
 
 void write_byte(s_MEM* mem, uint16_t address, uint8_t value) {
+    /* write single byte to memory */
     struct address_data data = get_address_data__(mem, address);
     data.section[data.masked_address] = value;
 }
 
 void write_short(s_MEM* mem, uint16_t address, uint16_t value) {
+    /* write short to memory */
     write_byte(mem, address, value & 0xff);
     write_byte(mem, address + 1, value >> 8);
 }
