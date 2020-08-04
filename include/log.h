@@ -9,50 +9,79 @@
 #define VERBOSITY_WARN 2
 #define VERBOSITY_ERROR 3
 
+// change to change verbosity:
 #define VERBOSITY VERBOSITY_ALL
 
-#if VERBOSITY <= VERBOSITY_ALL
-#define log(message, ...) { \
-    fprintf(stdout, "\033[0;36m");  \
-    fprintf(stdout, message "\n",  ##__VA_ARGS__); \
-    fprintf(stdout, "\033[0m");     \
-}
+
+#ifdef _WIN32
+    #include <windows.h>
+
+    #define FOREGROUND_YELLOW (FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN)
+    #define FOREGROUND_WHITE (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE)
+
+    #define CONSOLE_BLUE() { SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE | FOREGROUND_INTENSITY); }
+    #define CONSOLE_YELLOW() { SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_YELLOW); }
+    #define CONSOLE_RED() { SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED); }
+    #define CONSOLE_RESTORE() { SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_WHITE); }
+
 #else
-#define log(message, ...) { }
+
+    #ifdef linux
+
+        #define CONSOLE_YELLOW() { fprintf(stdout, "\033[0;36m"); }
+        #define CONSOLE_YELLOW() { fprintf(stdout, "\033[0;33m"); }
+        #define CONSOLE_RED() { fprintf(stderr, "\033[1;31m"); }
+        #define CONSOLE_RESTORE() { fprintf(stdout, "\033[0m"); }
+
+    #else
+
+        // this is for macOS I guess, but eh, I can't test that
+
+    #endif
+
+#endif
+
+#if VERBOSITY <= VERBOSITY_ALL
+    #define log(message, ...) { \
+        CONSOLE_BLUE();  \
+        fprintf(stdout, message "\n",  ##__VA_ARGS__); \
+        CONSOLE_RESTORE();     \
+    }
+#else
+    #define log(message, ...) { }
 #endif
 
 #if VERBOSITY <= VERBOSITY_DEBUG
-#define log_debug(message, ...) { \
-    fprintf(stdout, "[DEBUG]:") \
-    fprintf(stdout, message "\n", ##__VA_ARGS__); \
-endif \
-}
+    #define log_debug(message, ...) { \
+        fprintf(stdout, "[DEBUG]:"); \
+        fprintf(stdout, message "\n", ##__VA_ARGS__); \
+    }
 #else
-#define log_debug(message, ...) {}
+    #define log_debug(message, ...) {}
 #endif
 
 #if VERBOSITY <= VERBOSITY_WARN
-#define log_warn(message, ...) { \
-    fprintf(stdout, "\033[0;33m");  \
-    fprintf(stdout, "[WARN]:");  \
-    fprintf(stdout, message "\n", ##__VA_ARGS__); \
-    fprintf(stdout, "\033[0m");     \
-}
+    #define log_warn(message, ...) { \
+        CONSOLE_YELLOW();  \
+        fprintf(stdout, "[WARN]:");  \
+        fprintf(stdout, message "\n", ##__VA_ARGS__); \
+        CONSOLE_RESTORE();    \
+    }
 #else
-#define log_warn(message, ...) { }
+    #define log_warn(message, ...) { }
 #endif
 
 
-#if VERBOSITY < VERBOSITY_ERROR
-#define log_fatal(message, ...) { \
-    fprintf(stderr, "\033[1;31m");   \
-    fprintf(stderr, "[FATAL] at %s:%d: ", __FILE__, __LINE__);   \
-    fprintf(stderr, message "\n", ##__VA_ARGS__); \
-    fprintf(stderr, "\033[0m");      \
-    exit(1); \
-}
+#if VERBOSITY <= VERBOSITY_ERROR
+    #define log_fatal(message, ...) { \
+        CONSOLE_RED();   \
+        fprintf(stderr, "[FATAL] at %s:%d: ", __FILE__, __LINE__);   \
+        fprintf(stderr, message "\n", ##__VA_ARGS__); \
+        CONSOLE_RESTORE();      \
+        exit(1); \
+    }
 #else
-#define log_fatal(message, ...) { }
+    #define log_fatal(message, ...) { }
 #endif
 
 

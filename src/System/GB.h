@@ -1,12 +1,12 @@
 #ifndef CBOY_GB_H
 #define CBOY_GB_H
 
-#include "CPU/Z80.h"
+#include "CPU/CPU.h"
 #include "MEM/MEM.h"
 #include "PPU/PPU.h"
 
 typedef struct {
-    s_Z80 cpu;
+    s_CPU cpu;
     s_MEM mem;
     // todo: PPU
 } s_GB;

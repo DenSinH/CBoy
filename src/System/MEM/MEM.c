@@ -5,7 +5,11 @@
 #include "default.h"
 #include "log.h"
 
+#define BOOT_ROM_FILE "./src/System/MEM/dmg_boot.bin"
 
+void load_boot_rom(s_MEM* mem) {
+    load_rom(mem, BOOT_ROM_FILE);
+}
 
 void load_rom(s_MEM* mem, char file_name[]) {
     FILE* file = fopen(file_name, "rb");
@@ -21,7 +25,7 @@ void load_rom(s_MEM* mem, char file_name[]) {
     fread(mem->ROM_bNN, 1, MAX(0, f_size - sizeof(mem->ROM_b00)), file);
     fclose(file);
 
-    printf("Read %i bytes\n", f_size);
+    log("Read %i bytes", f_size);
 }
 
 struct address_data {
@@ -114,8 +118,7 @@ uint8_t read_byte(s_MEM* mem, uint16_t address) {
 }
 
 uint16_t read_short(s_MEM* mem, uint16_t address) {
-    struct address_data data = get_address_data__(mem, address);
-    return ((uint16_t)data.section[data.masked_address]) | (((uint16_t)data.section[data.masked_address + 1]) << 8);
+    return ((uint16_t)read_byte(mem, address)) | (((uint16_t)read_byte(mem, address + 1)) << 8);
 }
 
 void write_byte(s_MEM* mem, uint16_t address, uint8_t value) {
@@ -124,8 +127,7 @@ void write_byte(s_MEM* mem, uint16_t address, uint8_t value) {
 }
 
 void write_short(s_MEM* mem, uint16_t address, uint16_t value) {
-    struct address_data data = get_address_data__(mem, address);
-    data.section[data.masked_address] = value & 0xff;
-    data.section[data.masked_address + 1] = value >> 8;
+    write_byte(mem, address, value & 0xff);
+    write_byte(mem, address + 1, value >> 8);
 }
 

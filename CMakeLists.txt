@@ -10,8 +10,9 @@ ADD_EXECUTABLE(
         include/default.h
         src/System/GB.c
         src/System/GB.h
-        src/System/CPU/Z80.c
-        src/System/CPU/Z80.h
+        src/System/CPU/CPU.c
+        src/System/CPU/CPU.h
+        src/System/CPU/instructions.c
         src/System/MEM/MEM.c
         src/System/MEM/MEM.h
         src/System/PPU/PPU.c
