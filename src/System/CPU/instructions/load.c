@@ -10,12 +10,36 @@ void LD_r8_u8(s_CPU* cpu, uint8_t instruction) {
     set_r8(cpu, instruction >> 3, imm);
 }
 
-void LD_A_r8(s_CPU* cpu, uint8_t instruction) {
+void LD_HL_r8_HALT(s_CPU* cpu, uint8_t instruction) {
     /*
-     * LD r8_(instruction & 0xf) - 8, A
+     * 7 0-7
+     * 0111 0RRR
      */
-    log("LD_A_r8 %x", instruction);
-    set_r8(cpu, (instruction & 0xf) - 7, cpu->registers[r8_A]);
+    if ((instruction & 0x07) != 6) {
+        log("LD_HL_r8 %x", instruction);
+        write_byte(cpu->mem, get_r16(cpu, r16_HL), cpu->registers[instruction & 0x07]);
+    }
+    else {
+        log_fatal("unimplemented instruction: HALT");
+    }
+}
+
+void LD_r8_HL(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * 4-7 6/e
+     * 01RR R110
+     */
+    cpu->registers[(instruction >> 3) & 7] = read_byte(cpu->mem, get_r16(cpu, r16_HL));
+}
+
+void LD_r8_r8(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * 4 - 7 0 - F
+     * 01XX XYYY: LD XXX, YYY
+     * We already handle the (HL) cases above
+     */
+    log("LD_r8_r8 %x", instruction);
+    cpu->registers[(instruction >> 3) & 7] = cpu->registers[instruction & 7];
 }
 
 void LD_r16_u16(s_CPU* cpu, uint8_t instruction) {
@@ -55,6 +79,32 @@ void LD_r16_A(s_CPU* cpu, uint8_t instruction) {
             break;
         case 3:
             write_byte(cpu->mem, get_r16(cpu, r16_HL), cpu->registers[r8_A]);
+            set_r16(cpu, r16_HL, get_r16(cpu, r16_HL) - 1);
+            break;
+    }
+}
+
+void LD_A_r16(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * LD [BC], A   : 0x0a
+     * LD [DE], A   : 0x1a
+     * LD [HL+], A  : 0x2a
+     * LD [HL-], A  : 0x3a
+     */
+    log("LD_A_r16 %x", instruction);
+    switch (instruction >> 4) {
+        case 0:
+            cpu->registers[r8_A] = read_byte(cpu->mem, get_r16(cpu, r16_BC));
+            break;
+        case 1:
+            cpu->registers[r8_A] = read_byte(cpu->mem, get_r16(cpu, r16_DE));
+            break;
+        case 2:
+            cpu->registers[r8_A] = read_byte(cpu->mem, get_r16(cpu, r16_HL));
+            set_r16(cpu, r16_HL, get_r16(cpu, r16_HL) + 1);
+            break;
+        case 3:
+            cpu->registers[r8_A] = read_byte(cpu->mem, get_r16(cpu, r16_HL));
             set_r16(cpu, r16_HL, get_r16(cpu, r16_HL) - 1);
             break;
     }

@@ -1,5 +1,6 @@
 #include "CPU.h"
 
+#include "instructions/stack.c"
 #include "instructions/load.c"
 #include "instructions/arithmetic.c"
 #include "instructions/bit_op.c"
@@ -30,14 +31,33 @@ void init_cpu(s_CPU* cpu) {
             // 00xx 0010
             cpu->unprefixed[instruction] = LD_r16_A;
         }
+        else if ((instruction & 0xc7) == 0x04) {
+            // 00xx x100
+            cpu->unprefixed[instruction] = INC_r8;
+        }
+        else if ((instruction & 0xcf) == 0x0a) {
+            // 00xx a
+            cpu->unprefixed[instruction] = LD_A_r16;
+        }
         else if ((instruction & 0xc7) == 0x06) {
             // 00xx x110
             cpu->unprefixed[instruction] = LD_r8_u8;
         }
-        else if ((instruction & 0xf8) == 0x78) {
-            // 7 1xxx
-            cpu->unprefixed[instruction] = LD_A_r8;
+
+        /* order is important in the next 3 cases: */
+        else if ((instruction & 0xf8) == 0x70) {
+            // 7 0xxx
+            cpu->unprefixed[instruction] = LD_HL_r8_HALT;
         }
+        else if ((instruction & 0xc7) == 0x46) {
+            // 01xx x110
+            cpu->unprefixed[instruction] = LD_r8_HL;
+        }
+        else if ((instruction & 0xc0) == 0x40) {
+            // 7 1xxx
+            cpu->unprefixed[instruction] = LD_r8_r8;
+        }
+
         else if ((instruction & 0xf8) == 0xa8) {
             // A 1xxx
             cpu->unprefixed[instruction] = XOR_A_r8;
@@ -46,9 +66,17 @@ void init_cpu(s_CPU* cpu) {
             // 111x 00x0
             cpu->unprefixed[instruction] = LD_C_A;
         }
-        else if ((instruction & 0xc7) == 0x04) {
-            // 00xx x100
-            cpu->unprefixed[instruction] = INC_r8;
+        else if ((instruction & 0xcf) == 0xc5) {
+            // 11XX 0101
+            cpu->unprefixed[instruction] = PUSH_r16;
+        }
+        else if ((instruction & 0xcf) == 0xc1) {
+            // 11XX 0001
+            cpu->unprefixed[instruction] = POP_r16;
+        }
+        else if ((instruction & 0xe7) == 0xc4 || (instruction == 0xcd)) {
+            // 110x x100 OR cd
+            cpu->unprefixed[instruction] = CALL_cc;
         }
         else {
             cpu->unprefixed[instruction] = unimplemented_unprefixed;
