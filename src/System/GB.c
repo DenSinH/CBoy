@@ -35,7 +35,7 @@ void run_trace(s_GB* GB) {
     // load file and initialize string variables
     FILE* fp;
     char* mGBA = NULL;
-    char mine[69];
+    char mine[LOG_LINE_LENGTH + 1];
     size_t len = 0;
     ssize_t read;
 
@@ -55,7 +55,7 @@ void run_trace(s_GB* GB) {
         log_debug("mine: %s", mine);
 
         // compare lines
-        if (strncmp(mine, mGBA, 68) != 0) {
+        if (strncmp(mine, mGBA, LOG_LINE_LENGTH) != 0) {
             log_warn("mGBA: %s", mGBA);
             log_warn("mine: %s", mine);
             log_warn("found error in line, press key to continue...");
