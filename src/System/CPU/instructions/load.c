@@ -110,11 +110,11 @@ void LD_A_r16(s_CPU* cpu, uint8_t instruction) {
     }
 }
 
-void LD_C_A(s_CPU* cpu, uint8_t instruction) {
+void LD_FF00_A(s_CPU* cpu, uint8_t instruction) {
     /*
      * E0 / E2 / F0 / F2
      */
-    log("LD_C_A %x", instruction);
+    log("LD_FF00_A %x", instruction);
     switch (instruction) {
         case 0xe0:
             // LD (FF00 + u8), A
@@ -133,6 +133,6 @@ void LD_C_A(s_CPU* cpu, uint8_t instruction) {
             cpu->registers[r8_A] = read_byte(cpu->mem, 0xff00 + ((cpu->flags & flag_C) ? 1 : 0));
             break;
         default:
-            log_fatal("Invalid LD_C_A instruction: %x", instruction);
+            log_fatal("Invalid LD_FF00_A instruction: %x", instruction);
     }
 }

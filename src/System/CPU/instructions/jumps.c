@@ -1,8 +1,8 @@
-void JP_cc(s_CPU* cpu, uint8_t instruction) {
+void JP_cc_offset(s_CPU* cpu, uint8_t instruction) {
     /*
      * 18/20/28/30/38 for different instruction codes
      */
-    log("JP_cc %x", instruction);
+    log("JP_cc_offset %x", instruction);
     int8_t offset = (int8_t)read_byte(cpu->mem, cpu->PC++);
 
     switch(instruction) {
@@ -37,7 +37,7 @@ void JP_cc(s_CPU* cpu, uint8_t instruction) {
 
 void CALL_cc(s_CPU* cpu, uint8_t instruction) {
     /*
-     * C/D 4/C for different instruction codes
+     * C/D 4/C for different condition codes
      * 110x x100
      * CD = unconditional
      */
@@ -78,6 +78,51 @@ void CALL_cc(s_CPU* cpu, uint8_t instruction) {
                 PUSH_PC(cpu);
                 cpu->PC = address;
             }
+            break;
+        default:
+            log_fatal("unimplemented instruction: %x", instruction);
+    }
+}
+
+void RET_cc(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * C/D 0/8/9 for different condition codes
+     * 110x x00x
+     */
+    log("RET_cc %x", instruction);
+
+    switch (instruction) {
+        case 0xc0:
+            // NZ
+            if (!(cpu->flags & flag_Z)) {
+                POP_PC(cpu);
+            }
+            break;
+        case 0xd0:
+            // NC
+            if (!(cpu->flags & flag_C)) {
+                POP_PC(cpu);
+            }
+            break;
+        case 0xc8:
+            // Z
+            if (cpu->flags & flag_Z) {
+                POP_PC(cpu);
+            }
+            break;
+        case 0xd8:
+            // C
+            if (cpu->flags & flag_C) {
+                POP_PC(cpu);
+            }
+            break;
+        case 0xc9:
+            // unconditional
+            POP_PC(cpu);
+            break;
+        case 0xd9:
+            // RETI
+            log_fatal("Unimplemented instruction: RETI");
             break;
         default:
             log_fatal("unimplemented instruction: %x", instruction);
