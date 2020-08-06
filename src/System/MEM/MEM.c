@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "MEM.h"
+#include "IO/IO.h"
 
 #include "default.h"
 #include "log.h"
@@ -76,8 +77,8 @@ void load_rom(s_MEM* mem, char file_name[]) {
                 break;                                                     \
             }                                                              \
             else if (address < 0xFF80) {                                   \
-                /*  IO (todo) */                                           \
-                IO_action(mem->IO, address & 0x00ff)                       \
+                /* IO */                                                   \
+                IO_action(mem, address & 0x00ff)                           \
                 break;                                                     \
             }                                                              \
             else if (address < 0xFFFF) {                                   \
@@ -95,7 +96,7 @@ void load_rom(s_MEM* mem, char file_name[]) {
     }
 
 #define READ_BYTE(section, address) return section[address];
-#define READ_IO(section, address) READ_BYTE(section, address);
+#define READ_IO(mem, address) IO_read(mem, address);
 #define READ_IE(section, address) return section;
 uint8_t read_byte(s_MEM* mem, uint16_t address) {
     /* read single byte from memory */
@@ -109,8 +110,8 @@ uint16_t read_short(s_MEM* mem, uint16_t address) {
 
 
 #define WRITE_BYTE(section, address) section[address] = value;
-#define WRITE_IO(section, address) WRITE_BYTE(section, address);
-#define WRITE_IE(section, address) section = value;
+#define WRITE_IO(mem, address) IO_write(mem, address, value);
+#define WRITE_IE(section, address) IO_write(mem, address, value);
 void write_byte(s_MEM* mem, uint16_t address, uint8_t value) {
     /* write single byte to memory */
     ADDRESS_MAP(mem, address, WRITE_BYTE, WRITE_IO, WRITE_IE)

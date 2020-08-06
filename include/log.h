@@ -10,7 +10,7 @@
 #define VERBOSITY_ERROR 3
 
 // change to change verbosity:
-#define VERBOSITY VERBOSITY_ALL
+#define VERBOSITY VERBOSITY_DEBUG
 
 
 #ifdef _WIN32

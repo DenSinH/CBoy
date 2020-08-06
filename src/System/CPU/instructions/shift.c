@@ -1,25 +1,38 @@
+void RLC_HL(s_CPU* cpu, uint8_t instruction) {
+    // 0e
+    log("RLC_HL %x", instruction);
+
+    uint8_t value = read_byte(cpu->mem, get_r16(cpu, r16_HL));
+    uint8_t carry = value & 0x80;
+    value <<= 1;
+    value |= carry ? 1 : 0;
+    write_byte(cpu->mem, get_r16(cpu, r16_HL), value);
+    SET_FLAGS(cpu->flags, value == 0, 0, 0, carry);
+}
+
 void RLC_r8(s_CPU* cpu, uint8_t instruction) {
     /*
      * 0 1-7
      */
     log("RLC_r8 %x", instruction);
-    uint8_t carry;
-    if (instruction == 0x6) {
-        // HL
-        uint8_t value = read_byte(cpu->mem, get_r16(cpu, r16_HL));
-        carry = value & 0x80;
-        value <<= 1;
-        value |= carry ? 1 : 0;
-        write_byte(cpu->mem, get_r16(cpu, r16_HL), value);
-        SET_FLAGS(cpu->flags, value == 0, 0, 0, carry);
-    }
-    else {
-        // normal r8
-        carry = cpu->registers[instruction] & 0x80;
-        cpu->registers[instruction] <<= 1;
-        cpu->registers[instruction] |= carry ? 1 : 0;
-        SET_FLAGS(cpu->flags, cpu->registers[instruction] == 0, 0, 0, carry);
-    }
+
+    uint8_t carry = cpu->registers[instruction] & 0x80;
+    cpu->registers[instruction] <<= 1;
+    cpu->registers[instruction] |= carry ? 1 : 0;
+    SET_FLAGS(cpu->flags, cpu->registers[instruction] == 0, 0, 0, carry);
+}
+
+void RRC_HL(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * 0E
+     */
+    log("RRC_HL %x", instruction);
+    uint8_t value = read_byte(cpu->mem, get_r16(cpu, r16_HL));
+    uint8_t carry = value & 1;
+    value >>= 1;
+    value |= carry ? 0x80 : 0;
+    write_byte(cpu->mem, get_r16(cpu, r16_HL), value);
+    SET_FLAGS(cpu->flags, value == 0, 0, 0, carry);
 }
 
 void RRC_r8(s_CPU* cpu, uint8_t instruction) {
@@ -27,23 +40,24 @@ void RRC_r8(s_CPU* cpu, uint8_t instruction) {
      * 0 8-F
      */
     log("RRC_r8 %x", instruction);
-    uint8_t carry;
-    if (instruction == 0xe) {
-        // HL
-        uint8_t value = read_byte(cpu->mem, get_r16(cpu, r16_HL));
-        carry = value & 1;
-        value >>= 1;
-        value |= carry ? 0x80 : 0;
-        write_byte(cpu->mem, get_r16(cpu, r16_HL), value);
-        SET_FLAGS(cpu->flags, value == 0, 0, 0, carry);
-    }
-    else {
-        // normal r8
-        carry = cpu->registers[instruction & 0x7] & 1;
-        cpu->registers[instruction & 0x7] >>= 1;
-        cpu->registers[instruction & 0x7] |= carry ? 0x80 : 0;
-        SET_FLAGS(cpu->flags, cpu->registers[instruction & 0x7] == 0, 0, 0, carry);
-    }
+    uint8_t carry = cpu->registers[instruction & 0x7] & 1;
+    cpu->registers[instruction & 0x7] >>= 1;
+    cpu->registers[instruction & 0x7] |= carry ? 0x80 : 0;
+    SET_FLAGS(cpu->flags, cpu->registers[instruction & 0x7] == 0, 0, 0, carry);
+}
+
+void RL_HL(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * 16
+     */
+    log("RL_HL %x", instruction);
+
+    uint8_t value = read_byte(cpu->mem, get_r16(cpu, r16_HL));
+    uint8_t carry = value & 0x80;
+    value <<= 1;
+    value |= (cpu->flags & flag_C) ? 1 : 0;
+    write_byte(cpu->mem, get_r16(cpu, r16_HL), value);
+    SET_FLAGS(cpu->flags, value == 0, 0, 0, carry);
 }
 
 void RL_r8(s_CPU* cpu, uint8_t instruction) {
@@ -52,22 +66,24 @@ void RL_r8(s_CPU* cpu, uint8_t instruction) {
      */
     log("RL_r8 %x", instruction);
     uint8_t carry;
-    if (instruction == 0x16) {
-        // HL
-        uint8_t value = read_byte(cpu->mem, get_r16(cpu, r16_HL));
-        carry = value & 0x80;
-        value <<= 1;
-        value |= (cpu->flags & flag_C) ? 1 : 0;
-        write_byte(cpu->mem, get_r16(cpu, r16_HL), value);
-        SET_FLAGS(cpu->flags, value == 0, 0, 0, carry);
-    }
-    else {
-        // normal r8
-        carry = cpu->registers[instruction & 0x7] & 0x80;
-        cpu->registers[instruction & 0x7] <<= 1;
-        cpu->registers[instruction & 0x7] |= (cpu->flags & flag_C) ? 1 : 0;
-        SET_FLAGS(cpu->flags, cpu->registers[instruction & 0x7] == 0, 0, 0, carry);
-    }
+    carry = cpu->registers[instruction & 0x7] & 0x80;
+    cpu->registers[instruction & 0x7] <<= 1;
+    cpu->registers[instruction & 0x7] |= (cpu->flags & flag_C) ? 1 : 0;
+    SET_FLAGS(cpu->flags, cpu->registers[instruction & 0x7] == 0, 0, 0, carry);
+}
+
+void RR_HL(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * 1E
+     */
+    log("RR_HL %x", instruction);
+
+    uint8_t value = read_byte(cpu->mem, get_r16(cpu, r16_HL));
+    uint8_t carry = value & 1;
+    value >>= 1;
+    value |= (cpu->flags & flag_C) ? 0x80 : 0;
+    write_byte(cpu->mem, get_r16(cpu, r16_HL), value);
+    SET_FLAGS(cpu->flags, value == 0, 0, 0, carry);
 }
 
 void RR_r8(s_CPU* cpu, uint8_t instruction) {
@@ -75,23 +91,11 @@ void RR_r8(s_CPU* cpu, uint8_t instruction) {
      * 1 8-F
      */
     log("RR_r8 %x", instruction);
-    uint8_t carry;
-    if (instruction == 0x1e) {
-        // HL
-        uint8_t value = read_byte(cpu->mem, get_r16(cpu, r16_HL));
-        carry = value & 1;
-        value >>= 1;
-        value |= (cpu->flags & flag_C) ? 0x80 : 0;
-        write_byte(cpu->mem, get_r16(cpu, r16_HL), value);
-        SET_FLAGS(cpu->flags, value == 0, 0, 0, carry);
-    }
-    else {
-        // normal r8
-        carry = cpu->registers[instruction & 0x7] & 1;
-        cpu->registers[instruction & 0x7] >>= 1;
-        cpu->registers[instruction & 0x7] |= (cpu->flags & flag_C) ? 0x80 : 0;
-        SET_FLAGS(cpu->flags, cpu->registers[instruction & 0x7] == 0, 0, 0, carry);
-    }
+
+    uint8_t carry = cpu->registers[instruction & 0x7] & 1;
+    cpu->registers[instruction & 0x7] >>= 1;
+    cpu->registers[instruction & 0x7] |= (cpu->flags & flag_C) ? 0x80 : 0;
+    SET_FLAGS(cpu->flags, cpu->registers[instruction & 0x7] == 0, 0, 0, carry);
 }
 
 void RLCA(s_CPU* cpu, uint8_t instruction) {
@@ -141,4 +145,73 @@ void RRA(s_CPU* cpu, uint8_t instruction) {
     cpu->registers[r8_A] >>= 1;
     cpu->registers[r8_A] |= (cpu->flags & flag_C) ? 0x80 : 0;
     SET_FLAGS(cpu->flags, 0, 0, 0, carry);
+}
+
+void SLA_HL(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * 26
+     */
+    log("SLA_HL %x", instruction);
+    uint8_t value = read_byte(cpu->mem, get_r16(cpu, r16_HL));
+    uint8_t carry = value & 0x80;
+    value <<= 1;
+    write_byte(cpu->mem, get_r16(cpu, r16_HL), value);
+    SET_FLAGS(cpu->flags, value == 0, 0, 0, carry);
+}
+
+void SLA_r8(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * 2 0-7
+     */
+    log("SLA_r8 %x", instruction);
+
+    uint8_t carry = cpu->registers[instruction & 7] & 0x80;
+    cpu->registers[instruction & 7] <<= 1;
+    SET_FLAGS(cpu->flags, cpu->registers[instruction & 7] == 0, 0, 0, carry);
+}
+
+void SRA_HL(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * 2E
+     */
+    log("SRA_HL %x", instruction);
+    uint8_t value = read_byte(cpu->mem, get_r16(cpu, r16_HL));
+    uint8_t carry = value & 1;
+    value = (uint8_t)(((int8_t)value) >> 1);
+    write_byte(cpu->mem, get_r16(cpu, r16_HL), value);
+    SET_FLAGS(cpu->flags, value == 0, 0, 0, carry);
+}
+
+void SRA_r8(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * 2 8-F
+     */
+    log("SRA_r8 %x", instruction);
+
+    uint8_t carry = cpu->registers[instruction & 7] & 1;
+    cpu->registers[instruction & 7] = (uint8_t)(((int8_t)cpu->registers[instruction & 7]) >> 1);
+    SET_FLAGS(cpu->flags, cpu->registers[instruction] == 0, 0, 0, carry);
+}
+
+void SRL_HL(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * 2E
+     */
+    log("SRA_HL %x", instruction);
+    uint8_t value = read_byte(cpu->mem, get_r16(cpu, r16_HL));
+    uint8_t carry = value & 1;
+    value >>= 1;
+    write_byte(cpu->mem, get_r16(cpu, r16_HL), value);
+    SET_FLAGS(cpu->flags, value == 0, 0, 0, carry);
+}
+
+void SRL_r8(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * 2 8-F
+     */
+    log("SRA_r8 %x", instruction);
+
+    uint8_t carry = cpu->registers[instruction & 7] & 1;
+    cpu->registers[instruction & 7] >>= 1;
+    SET_FLAGS(cpu->flags, cpu->registers[instruction] == 0, 0, 0, carry);
 }

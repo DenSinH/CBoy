@@ -7,12 +7,13 @@
 
 int main(int argc, char** argv) {
     s_GB* GB = init_system();
-    load_rom(&GB->mem, "roms/HelloWorld.gb");
+    load_rom(&GB->mem, "roms/cpu_instrs/individual/01-special.gb");
 
     skip_boot_rom(&GB->cpu);
     // load_boot_rom(&GB->mem);
 
-    run_trace(GB, LOG_FILE);
+    run(GB);
+    // run_trace(GB, LOG_FILE);
 
     return 0;
 }

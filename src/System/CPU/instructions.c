@@ -187,22 +187,83 @@ void init_cpu(s_CPU* cpu) {
     }
 
     for (int instruction = 0; instruction < 0x100; instruction++) {
-        if ((instruction & 0xf8) == 0x00) {
+        /* ========================================================
+         *                      TOP 2 ROWS
+         * ========================================================
+         */
+        /* order of next 2 decodings is important */
+        if (instruction == 0x06) {
+            // 0000 0110
+            cpu->prefixed[instruction] = RLC_HL;
+        }
+        else if ((instruction & 0xf8) == 0x00) {
             // 0000 0XXX
             cpu->prefixed[instruction] = RLC_r8;
+        }
+
+        /* order of next 2 decodings is important */
+        else if (instruction == 0x0e) {
+            // 0000 1XXX
+            cpu->prefixed[instruction] = RRC_HL;
         }
         else if ((instruction & 0xf8) == 0x08) {
             // 0000 1XXX
             cpu->prefixed[instruction] = RRC_r8;
         }
+
+        /* order of next 2 decodings is important */
+        else if (instruction == 0x16) {
+            // 0001 0XXX
+            cpu->prefixed[instruction] = RL_HL;
+        }
         else if ((instruction & 0xf8) == 0x10) {
             // 0001 0XXX
             cpu->prefixed[instruction] = RL_r8;
+        }
+
+        /* order of next 2 decodings is important */
+        else if (instruction == 0x1e) {
+            // 0001 1XXX
+            cpu->prefixed[instruction] = RR_HL;
         }
         else if ((instruction & 0xf8) == 0x18) {
             // 0001 1XXX
             cpu->prefixed[instruction] = RR_r8;
         }
+        /* ========================================================
+         *                      SECOND 2 ROWS
+         * ========================================================
+         */
+        /* order of next 2 decodings is important */
+        else if (instruction == 0x26) {
+            // 0010 0110
+            cpu->prefixed[instruction] = SLA_HL;
+        }
+        else if ((instruction & 0xf8) == 0x20) {
+            // 0010 0XXX
+            cpu->prefixed[instruction] = SLA_r8;
+        }
+
+        /* order of next 2 decodings is important */
+        else if (instruction == 0x2e) {
+            // 0010 1110
+            cpu->prefixed[instruction] = SRA_HL;
+        }
+        else if ((instruction & 0xf8) == 0x28) {
+            // 0010 1XXX
+            cpu->prefixed[instruction] = SRA_r8;
+        }
+
+        /* order of next 2 decodings is important */
+        else if (instruction == 0x3e) {
+            // 0011 1110
+            cpu->prefixed[instruction] = SRL_HL;
+        }
+        else if ((instruction & 0xf8) == 0x38) {
+            // 0011 1XXX
+            cpu->prefixed[instruction] = SRA_r8;
+        }
+
         else if ((instruction & 0xc0) == 0x40) {
             // 01XX XXXX
             cpu->prefixed[instruction] = BIT_u3_r8;

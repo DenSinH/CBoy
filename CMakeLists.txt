@@ -19,7 +19,7 @@ ADD_EXECUTABLE(
         src/System/PPU/PPU.h
         src/System/PPU/Display/display.c
         src/System/PPU/Display/display.h
-)
+        src/System/MEM/IO/IO.c src/System/MEM/IO/IO.h)
 
 # for logging / stuff I want to use in all files
 include_directories(./include)
