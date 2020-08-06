@@ -15,16 +15,16 @@ void skip_boot_rom(s_CPU* cpu) {
     cpu->PC = 0x0100;
 }
 
-void step(s_CPU* cpu) {
+int cpu_step(s_CPU* cpu) {
     uint8_t instruction = read_byte(cpu->mem, cpu->PC++);
 
     if (instruction == 0xCB) {
         // prefixed instruction
         instruction = read_byte(cpu->mem, cpu->PC++);
-        cpu->prefixed[instruction](cpu, instruction);
+        return cpu->prefixed[instruction](cpu, instruction);
     }
     else {
         // unprefixed instruction
-        cpu->unprefixed[instruction](cpu, instruction);
+        return cpu->unprefixed[instruction](cpu, instruction);
     }
 }

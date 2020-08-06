@@ -1,4 +1,4 @@
-void INC_r8(s_CPU* cpu, uint8_t instruction) {
+int INC_r8(s_CPU* cpu, uint8_t instruction) {
     /*
      * 0/1/2/3 4/C
      * 00RR R100
@@ -10,14 +10,16 @@ void INC_r8(s_CPU* cpu, uint8_t instruction) {
     if (r8 != r8_HL) {
         old_val = cpu->registers[r8]++;
         SET_FLAGS(cpu->flags, cpu->registers[r8] == 0, 0, HALF_CARRY_8BIT_ADD(old_val, 1), 0);
+        return 4;
     }
     else {
         set_r8(cpu, r8_HL, (old_val = get_r8(cpu, r8_HL)) + 1);
         SET_FLAGS(cpu->flags, old_val + 1, 0, HALF_CARRY_8BIT_ADD(old_val, 1), cpu->flags & flag_C);
+        return 12;
     }
 }
 
-void INC_r16(s_CPU* cpu, uint8_t instruction) {
+int INC_r16(s_CPU* cpu, uint8_t instruction) {
     /*
      * 0/1/2/3 3
      * 00RR 0011
@@ -26,9 +28,10 @@ void INC_r16(s_CPU* cpu, uint8_t instruction) {
 
     uint8_t r16 = instruction >> 3;  // use the fact that bit 3 is 0
     set_r16(cpu, r16, get_r16(cpu, r16) + 1);
+    return 8;
 }
 
-void DEC_r8(s_CPU* cpu, uint8_t instruction) {
+int DEC_r8(s_CPU* cpu, uint8_t instruction) {
     /*
      * 0/1/2/3 5/D
      * 00RR R101
@@ -40,14 +43,16 @@ void DEC_r8(s_CPU* cpu, uint8_t instruction) {
     if (r8 != r8_HL) {
         old_val = cpu->registers[r8]--;
         SET_FLAGS(cpu->flags, cpu->registers[r8] == 0, 1, HALF_CARRY_8BIT_SUB(old_val, 1), cpu->flags & flag_C);
+        return 4;
     }
     else {
         set_r8(cpu, r8_HL, (old_val = get_r8(cpu, r8_HL)) - 1);
         SET_FLAGS(cpu->flags, (old_val - 1) == 0, 1, HALF_CARRY_8BIT_SUB(old_val, 1), cpu->flags & flag_C);
+        return 12;
     }
 }
 
-void DEC_r16(s_CPU* cpu, uint8_t instruction) {
+int DEC_r16(s_CPU* cpu, uint8_t instruction) {
     /*
      * 0-3 B
      * 00RR 1011
@@ -56,6 +61,7 @@ void DEC_r16(s_CPU* cpu, uint8_t instruction) {
 
     uint8_t r16 = (instruction >> 3) & 0x6;
     set_r16(cpu, r16, get_r16(cpu, r16) - 1);
+    return 8;
 }
 
 
@@ -159,7 +165,7 @@ void ARITH_A(s_CPU* cpu, uint8_t opcode, uint8_t operand) {
     }
 }
 
-void ARITH_A_HL(s_CPU* cpu, uint8_t instruction) {
+int ARITH_A_HL(s_CPU* cpu, uint8_t instruction) {
     /*
      * 8-B 6/E
      * 10XX X110
@@ -168,9 +174,10 @@ void ARITH_A_HL(s_CPU* cpu, uint8_t instruction) {
     log("ARITH_A_HL %x", instruction);
     uint8_t operand = read_byte(cpu->mem, get_r16(cpu, r16_HL));
     ARITH_A(cpu, (instruction >> 3) & 0x7, operand);
+    return 8;
 }
 
-void ARITH_A_r8(s_CPU* cpu, uint8_t instruction) {
+int ARITH_A_r8(s_CPU* cpu, uint8_t instruction) {
     /*
      * 8-B ~(6/E)
      * 10XX XRRR
@@ -178,9 +185,10 @@ void ARITH_A_r8(s_CPU* cpu, uint8_t instruction) {
      */
     log("ARITH_A_r8 %x", instruction);
     ARITH_A(cpu, (instruction >> 3) & 0x7, cpu->registers[instruction & 7]);
+    return 4;
 }
 
-void ARITH_A_u8(s_CPU* cpu, uint8_t instruction) {
+int ARITH_A_u8(s_CPU* cpu, uint8_t instruction) {
     /*
      * C-F 6/E
      * 11XX X110
@@ -189,4 +197,5 @@ void ARITH_A_u8(s_CPU* cpu, uint8_t instruction) {
     log("ARITH_A_u8 %x", instruction);
     uint8_t operand = read_byte(cpu->mem, cpu->PC++);
     ARITH_A(cpu, (instruction >> 3) & 0x7, operand);
+    return 8;
 }

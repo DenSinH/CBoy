@@ -7,7 +7,7 @@
 
 int main(int argc, char** argv) {
     s_GB* GB = init_system();
-    load_rom(&GB->mem, "roms/cpu_instrs/individual/01-special.gb");
+    load_rom(&GB->mem, "roms/HelloWorld.gb");
 
     skip_boot_rom(&GB->cpu);
     // load_boot_rom(&GB->mem);

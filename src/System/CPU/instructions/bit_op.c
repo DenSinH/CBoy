@@ -1,4 +1,4 @@
-void BIT_u3_r8(s_CPU* cpu, uint8_t instruction) {
+int BIT_u3_r8(s_CPU* cpu, uint8_t instruction) {
     /*
      * 4/5/6/7 0-F
      * 01BB BRRR: if (registers[RRR] bit BBB is set: set Z
@@ -13,4 +13,5 @@ void BIT_u3_r8(s_CPU* cpu, uint8_t instruction) {
             1,
             cpu->flags & flag_C)
 
+    return 4;
 }

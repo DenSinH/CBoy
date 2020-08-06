@@ -42,8 +42,8 @@ typedef struct s_CPU {
     uint8_t flags;
     bool IME;
 
-    void (*unprefixed[0x100])(struct s_CPU* cpu, uint8_t instruction);
-    void (*prefixed[0x100])(struct s_CPU* cpu, uint8_t instruction);
+    int (*unprefixed[0x100])(struct s_CPU* cpu, uint8_t instruction);
+    int (*prefixed[0x100])(struct s_CPU* cpu, uint8_t instruction);
 
     s_MEM* mem;
 
@@ -117,7 +117,7 @@ static inline void mGBA_log_format(s_CPU* cpu, char dest[LOG_LINE_LENGTH + 1]) {
 
 void skip_boot_rom(s_CPU* cpu);
 
-void step(s_CPU* cpu);
-void init_cpu(s_CPU* cpu);
+int cpu_step(s_CPU* cpu);
+void cpu_init(s_CPU* cpu);
 
 #endif //CBOY_CPU_H

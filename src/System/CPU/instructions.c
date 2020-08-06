@@ -12,15 +12,15 @@
 
 #define DO_SELF_TEST
 
-void unimplemented_unprefixed(s_CPU* cpu, uint8_t instruction) {
+int unimplemented_unprefixed(s_CPU* cpu, uint8_t instruction) {
     log_fatal("Unimplemlemented unprefixed instruction: %02x at %04x", instruction, cpu->PC);
 }
 
-void unimplemented_prefixed(s_CPU* cpu, uint8_t instruction) {
+int unimplemented_prefixed(s_CPU* cpu, uint8_t instruction) {
     log_fatal("Unimplemlemented prefixed instruction: %02x at %04x", instruction, cpu->PC);
 }
 
-void init_cpu(s_CPU* cpu) {
+void cpu_init(s_CPU* cpu) {
     /* Populate the instruction tables */
     for (int instruction = 0; instruction < 0x100; instruction++) {
         /* ========================================================
@@ -261,7 +261,7 @@ void init_cpu(s_CPU* cpu) {
         }
         else if ((instruction & 0xf8) == 0x38) {
             // 0011 1XXX
-            cpu->prefixed[instruction] = SRA_r8;
+            cpu->prefixed[instruction] = SRL_r8;
         }
 
         else if ((instruction & 0xc0) == 0x40) {

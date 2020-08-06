@@ -8,7 +8,7 @@ void POP_PC(s_CPU* cpu) {
     cpu->PC |= read_byte(cpu->mem, cpu->SP++) << 8;  // pop HI
 }
 
-void PUSH_r16(s_CPU* cpu, uint8_t instruction) {
+int PUSH_r16(s_CPU* cpu, uint8_t instruction) {
     /*
      * c-f 5
      * 11XX 5
@@ -26,9 +26,10 @@ void PUSH_r16(s_CPU* cpu, uint8_t instruction) {
         write_byte(cpu->mem, --cpu->SP, cpu->registers[r8_A]);       // push HI
         write_byte(cpu->mem, --cpu->SP, cpu->flags);                 // push LO
     }
+    return 16;
 }
 
-void POP_r16(s_CPU* cpu, uint8_t instruction) {
+int POP_r16(s_CPU* cpu, uint8_t instruction) {
     /*
      * c-f 1
      * 11XX 1
@@ -46,4 +47,5 @@ void POP_r16(s_CPU* cpu, uint8_t instruction) {
         cpu->registers[r8_A] = read_byte(cpu->mem, cpu->SP++);       // pop LO
         cpu->flags = read_byte(cpu->mem, cpu->SP++);                 // pop HI
     }
+    return 12;
 }

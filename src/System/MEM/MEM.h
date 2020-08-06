@@ -2,6 +2,7 @@
 #define CBOY_MEM_H
 
 #include <stdint.h>
+#include "../IO/IO.h"
 
 typedef struct {
     uint8_t ROM_b00[0x4000];        // 0000 - 3FFF
@@ -11,7 +12,7 @@ typedef struct {
     uint8_t WRAM_b0[0x1000];        // C000 - CFFF
     uint8_t WRAM_bN[0x1000];        // D000 - DFFF
     uint8_t OAM[0xa0];              // FE00 - FE9F
-    uint8_t IO[0x80];               // FF00 - FF7F
+    s_IO IO;                        // FF00 - FF7F
     uint8_t HRAM[0x80];             // FF00 - FF7F
     uint8_t IE;                     // FFFF
 } s_MEM;

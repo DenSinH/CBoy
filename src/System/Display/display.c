@@ -11,7 +11,7 @@ SDL_Window* disp_Window = NULL;
 //The surface contained by the window
 SDL_Surface* disp_ScreenSurface = NULL;
 
-void init_display(char title[], int width, int height)
+void display_init(char *title, int width, int height)
 {
     //Initialize SDL
     if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
@@ -38,7 +38,7 @@ void init_display(char title[], int width, int height)
     disp_ScreenSurface = SDL_GetWindowSurface(disp_Window );
 }
 
-void close_display()
+void display_close()
 {
     //Destroy window
     SDL_DestroyWindow(disp_Window );

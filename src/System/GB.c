@@ -21,8 +21,8 @@ s_GB* init_system() {
     memset(GB, 0x00, sizeof(s_GB));
 
     GB->cpu.mem = &(GB->mem);
-    init_cpu(&GB->cpu);
-    init_display("CBoy", GB_WIDTH * GB_SCALE, GB_HEIGHT * GB_SCALE);
+    cpu_init(&GB->cpu);
+    display_init("CBoy", GB_WIDTH * GB_SCALE, GB_HEIGHT * GB_SCALE);
 
     return GB;
 }
@@ -57,8 +57,7 @@ void run(s_GB* GB) {
     while (!GB->shut_down) {
         // 4 cycles (1 t cycle) per dot
         while (cycles < GB_DOTS_PER_SCANLINE * 4) {
-            step(&GB->cpu);
-            cycles++;
+            cycles += cpu_step(&GB->cpu);
         }
         cycles -= GB_DOTS_PER_SCANLINE * 4;
 
@@ -76,7 +75,7 @@ void run(s_GB* GB) {
         do_scanline(&GB->ppu, &GB->mem);
     }
 
-    close_display();
+    display_close();
 }
 
 bool ignore_case(s_GB* GB) {
@@ -120,8 +119,7 @@ void run_trace(s_GB* GB, char log_file[]) {
             getchar();
         }
 
-        step(&GB->cpu);
-        cycles++;
+        cycles += cpu_step(&GB->cpu);
 
         if (cycles > GB_DOTS_PER_SCANLINE * 4) {
             cycles -= GB_DOTS_PER_SCANLINE;
@@ -140,5 +138,5 @@ void run_trace(s_GB* GB, char log_file[]) {
         }
     }
 
-    close_display();
+    display_close();
 }

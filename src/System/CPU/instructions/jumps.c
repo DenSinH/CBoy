@@ -1,4 +1,4 @@
-void JP_cc_offset(s_CPU* cpu, uint8_t instruction) {
+int JP_cc_offset(s_CPU* cpu, uint8_t instruction) {
     /*
      * 18/20/28/30/38 for different instruction codes
      */
@@ -9,33 +9,41 @@ void JP_cc_offset(s_CPU* cpu, uint8_t instruction) {
         case 0x18:
             // unconditional
             cpu->PC += offset;
-            break;
+            return 12;
         case 0x20:
             // NZ
-            if (!(cpu->flags & flag_Z))
+            if (!(cpu->flags & flag_Z)) {
                 cpu->PC += offset;
-            break;
+                return 12;
+            }
+            return 8;
         case 0x28:
             // Z
-            if (cpu->flags & flag_Z)
+            if (cpu->flags & flag_Z) {
                 cpu->PC += offset;
-            break;
+                return 12;
+            }
+            return 8;
         case 0x30:
             // NC
-            if (!(cpu->flags & flag_C))
+            if (!(cpu->flags & flag_C)) {
                 cpu->PC += offset;
-            break;
+                return 12;
+            }
+            return 8;
         case 0x38:
             // C
-            if (cpu->flags & flag_C)
+            if (cpu->flags & flag_C) {
                 cpu->PC += offset;
-            break;
+                return 12;
+            }
+            return 8;
         default:
             log_fatal("Invalid opcode for JP_cc offset: %x", instruction);
     }
 }
 
-void JP_cc_direct_unused(s_CPU* cpu, uint8_t instruction) {
+int JP_cc_direct_unused(s_CPU* cpu, uint8_t instruction) {
     /*
      * C/D 2/3/A for different instruction codes
      * 110X X01Y
@@ -52,34 +60,42 @@ void JP_cc_direct_unused(s_CPU* cpu, uint8_t instruction) {
     switch(instruction) {
         case 0xc2:
             // NZ
-            if (!(cpu->flags & flag_Z))
+            if (!(cpu->flags & flag_Z)) {
                 cpu->PC = address;
-            break;
+                return 16;
+            }
+            return 12;
         case 0xd2:
             // NC
-            if (!(cpu->flags & flag_C))
+            if (!(cpu->flags & flag_C)) {
                 cpu->PC = address;
-            break;
+                return 16;
+            }
+            return 12;
         case 0xc3:
             // unconditional
             cpu->PC = address;
-            break;
+            return 16;
         case 0xca:
             // Z
-            if (cpu->flags & flag_Z)
+            if (cpu->flags & flag_Z) {
                 cpu->PC = address;
-            break;
+                return 16;
+            }
+            return 12;
         case 0xda:
             // C
-            if (cpu->flags & flag_C)
+            if (cpu->flags & flag_C) {
                 cpu->PC = address;
-            break;
+                return 16;
+            }
+            return 12;
         default:
             log_fatal("Invalid opcode for JP_cc direct: %x", instruction);
     }
 }
 
-void CALL_cc(s_CPU* cpu, uint8_t instruction) {
+int CALL_cc(s_CPU* cpu, uint8_t instruction) {
     /*
      * C/D 4/C for different condition codes
      * 110x x100
@@ -94,41 +110,45 @@ void CALL_cc(s_CPU* cpu, uint8_t instruction) {
             // unconditional
             PUSH_PC(cpu);
             cpu->PC = address;
-            break;
+            return 24;
         case 0xc4:
             // NZ
             if (!(cpu->flags & flag_Z)) {
                 PUSH_PC(cpu);
                 cpu->PC = address;
+                return 24;
             }
-            break;
+            return 12;
         case 0xcc:
             // Z
             if (cpu->flags & flag_Z) {
                 PUSH_PC(cpu);
                 cpu->PC = address;
+                return 24;
             }
-            break;
+            return 12;
         case 0xd4:
             // NC
             if (!(cpu->flags & flag_C)) {
                 PUSH_PC(cpu);
                 cpu->PC = address;
+                return 24;
             }
-            break;
+            return 12;
         case 0xdc:
             // C
             if (cpu->flags & flag_C) {
                 PUSH_PC(cpu);
                 cpu->PC = address;
+                return 24;
             }
-            break;
+            return 12;
         default:
             log_fatal("unimplemented instruction: %x", instruction);
     }
 }
 
-void RET_cc(s_CPU* cpu, uint8_t instruction) {
+int RET_cc(s_CPU* cpu, uint8_t instruction) {
     /*
      * C/D 0/8/9 for different condition codes
      * 110x x00x
@@ -140,29 +160,34 @@ void RET_cc(s_CPU* cpu, uint8_t instruction) {
             // NZ
             if (!(cpu->flags & flag_Z)) {
                 POP_PC(cpu);
+                return 20;
             }
-            break;
+            return 8;
         case 0xd0:
             // NC
             if (!(cpu->flags & flag_C)) {
                 POP_PC(cpu);
+                return 20;
             }
-            break;
+            return 8;
         case 0xc8:
             // Z
             if (cpu->flags & flag_Z) {
                 POP_PC(cpu);
+                return 20;
             }
-            break;
+            return 8;
         case 0xd8:
             // C
             if (cpu->flags & flag_C) {
                 POP_PC(cpu);
+                return 20;
             }
-            break;
+            return 8;
         case 0xc9:
             // unconditional
             POP_PC(cpu);
+            return 20;
             break;
         case 0xd9:
             // RETI
