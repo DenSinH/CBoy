@@ -29,6 +29,10 @@ void run(s_GB* GB) {
 
 #define LOG_FILE "./logs/boot_rom.log"
 
+bool ignore_case(s_GB* GB) {
+    return false;
+}
+
 void run_trace(s_GB* GB) {
     /* run the GB system vs a trace generated with mGBA (to be called after ROM is loaded) */
 
@@ -55,7 +59,7 @@ void run_trace(s_GB* GB) {
         log_debug("mine: %s", mine);
 
         // compare lines
-        if (strncmp(mine, mGBA, LOG_LINE_LENGTH) != 0) {
+        if (!ignore_case(GB) && strncmp(mine, mGBA, LOG_LINE_LENGTH) != 0) {
             log_warn("mGBA: %s", mGBA);
             log_warn("mine: %s", mine);
             log_warn("found error in line, press key to continue...");
