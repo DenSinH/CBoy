@@ -40,6 +40,7 @@ typedef struct s_CPU {
     uint8_t registers[8];
     uint16_t SP, PC;
     uint8_t flags;
+    bool IME;
 
     void (*unprefixed[0x100])(struct s_CPU* cpu, uint8_t instruction);
     void (*prefixed[0x100])(struct s_CPU* cpu, uint8_t instruction);
@@ -113,6 +114,8 @@ static inline void mGBA_log_format(s_CPU* cpu, char dest[LOG_LINE_LENGTH + 1]) {
         log_fatal("Couldn't format CPU string");
     }
 }
+
+void skip_boot_rom(s_CPU* cpu);
 
 void step(s_CPU* cpu);
 void init_cpu(s_CPU* cpu);

@@ -6,17 +6,18 @@
 #include "instructions/bit_op.c"
 #include "instructions/shift.c"
 #include "instructions/jumps.c"
+#include "instructions/misc.c"
 
 #include "log.h"
 
 #define DO_SELF_TEST
 
 void unimplemented_unprefixed(s_CPU* cpu, uint8_t instruction) {
-    log_fatal("Unimplemlemented unprefixed instruction: %02x", instruction);
+    log_fatal("Unimplemlemented unprefixed instruction: %02x at %04x", instruction, cpu->PC);
 }
 
 void unimplemented_prefixed(s_CPU* cpu, uint8_t instruction) {
-    log_fatal("Unimplemlemented prefixed instruction: %02x", instruction);
+    log_fatal("Unimplemlemented prefixed instruction: %02x at %04x", instruction, cpu->PC);
 }
 
 void init_cpu(s_CPU* cpu) {
@@ -27,7 +28,10 @@ void init_cpu(s_CPU* cpu) {
          * ========================================================
          */
         // col 0
-        if ((instruction > 0x10) && (instruction & 0xc7) == 0x00) {
+        if (instruction == 0) {
+            cpu->unprefixed[instruction] = NOP;
+        }
+        else if ((instruction > 0x10) && (instruction & 0xc7) == 0x00) {
             // > 0x10 AND 00xx x000
             cpu->unprefixed[instruction] = JP_cc_offset;
         }
@@ -145,7 +149,16 @@ void init_cpu(s_CPU* cpu) {
             // 111x 00x0
             cpu->unprefixed[instruction] = LD_FF00_A;
         }
-        // col 3
+        // col 2 / 3 / A
+        else if ((instruction & 0xe6) == 0xc2) {
+            // 110X X01Y
+            cpu->unprefixed[instruction] = JP_cc_direct_unused;
+        }
+        // col 3 / B
+        else if ((instruction & 0xf7) == 0xf3) {
+            // 1111 X010
+            cpu->unprefixed[instruction] = DI_EI;
+        }
         // col 4 / C / D
         else if ((instruction & 0xe7) == 0xc4 || (instruction == 0xcd)) {
             // 110x x100 OR cd
@@ -167,7 +180,6 @@ void init_cpu(s_CPU* cpu) {
             // 111X A
             cpu->unprefixed[instruction] = LD_u16_A;
         }
-        // col B
         // col F
         else {
             cpu->unprefixed[instruction] = unimplemented_unprefixed;

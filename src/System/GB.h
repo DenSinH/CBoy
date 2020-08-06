@@ -14,6 +14,6 @@ typedef struct {
 s_GB* init_system();
 
 void run(s_GB* GB);
-void run_trace(s_GB* GB);
+void run_trace(s_GB* GB, char log_file[]);
 
 #endif //CBOY_GB_H

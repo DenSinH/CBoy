@@ -27,13 +27,15 @@ void run(s_GB* GB) {
     }
 }
 
-#define LOG_FILE "./logs/boot_rom.log"
-
 bool ignore_case(s_GB* GB) {
     return false;
 }
 
-void run_trace(s_GB* GB) {
+bool read_line(s_GB* GB) {
+    return true;
+}
+
+void run_trace(s_GB* GB, char log_file[]) {
     /* run the GB system vs a trace generated with mGBA (to be called after ROM is loaded) */
 
     // load file and initialize string variables
@@ -43,13 +45,13 @@ void run_trace(s_GB* GB) {
     size_t len = 0;
     ssize_t read;
 
-    fp = fopen(LOG_FILE, "r");
+    fp = fopen(log_file, "r");
     if (fp == NULL)
-        log_fatal("Could not open file with file path: " LOG_FILE);
+        log_fatal("Could not open file with file path: %s", log_file);
 
     bool shut_down = false;
 
-    while ((!shut_down) && ((read = getline(&mGBA, &len, fp)) != -1)) {
+    while ((!shut_down) && (!read_line(GB) || ((read = getline(&mGBA, &len, fp)) != -1))) {
 
         // read next line and report them
         mGBA[read - 1] = ' ';         // remove newline character
@@ -59,7 +61,7 @@ void run_trace(s_GB* GB) {
         log_debug("mine: %s", mine);
 
         // compare lines
-        if (!ignore_case(GB) && strncmp(mine, mGBA, LOG_LINE_LENGTH) != 0) {
+        if (read_line(GB) && !ignore_case(GB) && strncmp(mine, mGBA, LOG_LINE_LENGTH) != 0) {
             log_warn("mGBA: %s", mGBA);
             log_warn("mine: %s", mine);
             log_warn("found error in line, press key to continue...");

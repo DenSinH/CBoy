@@ -31,7 +31,51 @@ void JP_cc_offset(s_CPU* cpu, uint8_t instruction) {
                 cpu->PC += offset;
             break;
         default:
-            log_fatal("Invalid opcode for JP: %x", instruction);
+            log_fatal("Invalid opcode for JP_cc offset: %x", instruction);
+    }
+}
+
+void JP_cc_direct_unused(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * C/D 2/3/A for different instruction codes
+     * 110X X01Y
+     * Y should actually be 0, but the cases that are excessively thrown in here are:
+     * C3: unused: crash
+     * CB: prefix, never happens
+     * D3: unused: crash
+     * DB: unused: crash
+     */
+    log("JP_cc_direct %x", instruction);
+    uint16_t address = read_short(cpu->mem, cpu->PC);
+    cpu->PC += 2;
+
+    switch(instruction) {
+        case 0xc2:
+            // NZ
+            if (!(cpu->flags & flag_Z))
+                cpu->PC = address;
+            break;
+        case 0xd2:
+            // NC
+            if (!(cpu->flags & flag_C))
+                cpu->PC = address;
+            break;
+        case 0xc3:
+            // unconditional
+            cpu->PC = address;
+            break;
+        case 0xca:
+            // Z
+            if (cpu->flags & flag_Z)
+                cpu->PC = address;
+            break;
+        case 0xda:
+            // C
+            if (cpu->flags & flag_C)
+                cpu->PC = address;
+            break;
+        default:
+            log_fatal("Invalid opcode for JP_cc direct: %x", instruction);
     }
 }
 
