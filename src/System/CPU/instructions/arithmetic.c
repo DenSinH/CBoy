@@ -7,12 +7,12 @@ void INC_r8(s_CPU* cpu, uint8_t instruction) {
     uint8_t old_val;
 
     uint8_t r8 = instruction >> 3;
-    if (r8 != 7) {
+    if (r8 != r8_HL) {
         old_val = cpu->registers[r8]++;
         SET_FLAGS(cpu->flags, cpu->registers[r8] == 0, 0, HALF_CARRY_8BIT_ADD(old_val, 1), 0);
     }
     else {
-        set_r8(cpu, 7, (old_val = get_r8(cpu, 7)) + 1);
+        set_r8(cpu, r8_HL, (old_val = get_r8(cpu, r8_HL)) + 1);
         SET_FLAGS(cpu->flags, old_val + 1, 0, HALF_CARRY_8BIT_ADD(old_val, 1), cpu->flags & flag_C);
     }
 }
@@ -37,13 +37,13 @@ void DEC_r8(s_CPU* cpu, uint8_t instruction) {
     uint8_t old_val;
 
     uint8_t r8 = instruction >> 3;
-    if (r8 != 7) {
+    if (r8 != r8_HL) {
         old_val = cpu->registers[r8]--;
         SET_FLAGS(cpu->flags, cpu->registers[r8] == 0, 1, HALF_CARRY_8BIT_SUB(old_val, 1), cpu->flags & flag_C);
     }
     else {
-        set_r8(cpu, 7, (old_val = get_r8(cpu, 7)) - 1);
-        SET_FLAGS(cpu->flags, old_val - 1, 1, HALF_CARRY_8BIT_SUB(old_val, 1), cpu->flags & flag_C);
+        set_r8(cpu, r8_HL, (old_val = get_r8(cpu, r8_HL)) - 1);
+        SET_FLAGS(cpu->flags, (old_val - 1) == 0, 1, HALF_CARRY_8BIT_SUB(old_val, 1), cpu->flags & flag_C);
     }
 }
 

@@ -163,6 +163,10 @@ void init_cpu(s_CPU* cpu) {
         }
         // col 7
         // col A
+        else if ((instruction & 0xEF) == 0xEA) {
+            // 111X A
+            cpu->unprefixed[instruction] = LD_u16_A;
+        }
         // col B
         // col F
         else {

@@ -142,10 +142,15 @@ void LD_u16_A(s_CPU* cpu, uint8_t instruction) {
      * E/F A
      */
     log("LD_u16_A %x", instruction);
-    if (instruction == 0xEA) {
+    uint16_t address = read_short(cpu->mem, cpu->PC);
+    cpu->PC += 2;
 
+    if (instruction == 0xEA) {
+        // LD (u16), A
+        write_byte(cpu->mem, address, cpu->registers[r8_A]);
     }
     else {
-
+        // LD A, (u16)
+        cpu->registers[r8_A] = read_byte(cpu->mem, address);
     }
 }
