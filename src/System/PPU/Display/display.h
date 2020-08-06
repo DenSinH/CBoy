@@ -1,4 +1,0 @@
-#ifndef CBOY_DISPLAY_H
-#define CBOY_DISPLAY_H
-
-#endif //CBOY_DISPLAY_H

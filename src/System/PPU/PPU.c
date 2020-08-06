@@ -1,4 +1,7 @@
-//
-// Created by Dennis on 3-8-2020.
-//
+#include "PPU.h"
 
+#include "log.h"
+
+void do_scanline(s_PPU* ppu, s_MEM* mem) {
+    
+}

@@ -9,7 +9,7 @@
 
 #include "log.h"
 
-#define CLOCK_SPEED 4194304
+#define GB_CLOCK_SPEED 4194304
 
 typedef enum {
     r8_B = 0,
