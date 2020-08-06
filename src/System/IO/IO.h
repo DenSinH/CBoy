@@ -3,6 +3,16 @@
 
 #include <stdint.h>
 
+#include "LCD.h"
+
+
+#define CAST_REGISTER(type, value) *(type*)&value
+#define CAST_UINT8_T(reg) *(uint8_t*)&reg
+
+enum IO_regs {
+    reg_LCDC = 0x40
+} IO_regs;
+
 typedef struct s_IO {
     uint8_t registers[0x80];
 } s_IO;

@@ -12,8 +12,9 @@
 
 typedef struct s_PPU {
     uint32_t display[GB_WIDTH * GB_HEIGHT];
-    uint32_t scanline;
+    int scanline;
 
+    s_MEM* mem;
     s_IO* IO;
 } s_PPU;
 

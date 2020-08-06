@@ -21,6 +21,7 @@ s_GB* init_system() {
     memset(GB, 0x00, sizeof(s_GB));
 
     GB->cpu.mem = &(GB->mem);
+    GB->ppu.mem = &(GB->mem);
     GB->cpu.IO = GB->mem.IO = GB->ppu.IO = &(GB->IO);
     cpu_init(&GB->cpu);
     display_init("CBoy", GB_WIDTH * GB_SCALE, GB_HEIGHT * GB_SCALE);
@@ -37,6 +38,12 @@ void handle_events(s_GB* GB) {
                 GB->shut_down = true;
                 break;
             case SDL_KEYDOWN:
+                for (int i = 0; i < sizeof(GB->mem.VRAM); i++) {
+                    if ((i & 0x1f) == 0) {
+                        printf("\n %04x: ", i);
+                    }
+                    printf("%02x ", GB->mem.VRAM[i]);
+                }
                 break;
             case SDL_KEYUP:
                 break;
