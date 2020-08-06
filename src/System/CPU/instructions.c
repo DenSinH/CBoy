@@ -9,6 +9,8 @@
 
 #include "log.h"
 
+#define DO_SELF_TEST
+
 void unimplemented_unprefixed(s_CPU* cpu, uint8_t instruction) {
     log_fatal("Unimplemlemented unprefixed instruction: %02x", instruction);
 }
@@ -157,7 +159,7 @@ void init_cpu(s_CPU* cpu) {
         // col 6 / E
         else if ((instruction & 0xc7) == 0xc6) {
             // 11XX X110
-            cpu->prefixed[instruction] = ARITH_A_u8;
+            cpu->unprefixed[instruction] = ARITH_A_u8;
         }
         // col 7
         // col A
@@ -193,4 +195,20 @@ void init_cpu(s_CPU* cpu) {
             cpu->prefixed[instruction] = unimplemented_prefixed;
         }
     }
+
+#ifdef DO_SELF_TEST
+    /* ========================================================
+     *                      SELF TEST
+     * ========================================================
+     */
+    for (int i = 0; i < 0x100; i++) {
+        if (cpu->unprefixed[i] == NULL) {
+            log_fatal("Unprefixed instruction %x is NULL pointer!", i);
+        }
+
+        if (cpu->prefixed[i] == NULL) {
+            log_fatal("Prefixed instruction %x is NULL pointer!", i);
+        }
+    }
+#endif
 }

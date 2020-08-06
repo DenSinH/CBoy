@@ -136,3 +136,16 @@ void LD_FF00_A(s_CPU* cpu, uint8_t instruction) {
             log_fatal("Invalid LD_FF00_A instruction: %x", instruction);
     }
 }
+
+void LD_u16_A(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * E/F A
+     */
+    log("LD_u16_A %x", instruction);
+    if (instruction == 0xEA) {
+
+    }
+    else {
+
+    }
+}

@@ -9,11 +9,11 @@ void INC_r8(s_CPU* cpu, uint8_t instruction) {
     uint8_t r8 = instruction >> 3;
     if (r8 != 7) {
         old_val = cpu->registers[r8]++;
-        SET_FLAGS(cpu->flags, cpu->registers[r8] == 0, 0, HALF_CARRY(old_val, cpu->registers[r8]), 0);
+        SET_FLAGS(cpu->flags, cpu->registers[r8] == 0, 0, HALF_CARRY_8BIT_ADD(old_val, 1), 0);
     }
     else {
         set_r8(cpu, 7, (old_val = get_r8(cpu, 7)) + 1);
-        SET_FLAGS(cpu->flags, old_val + 1, 0, HALF_CARRY(old_val, old_val + 1), cpu->flags & flag_C);
+        SET_FLAGS(cpu->flags, old_val + 1, 0, HALF_CARRY_8BIT_ADD(old_val, 1), cpu->flags & flag_C);
     }
 }
 
@@ -39,11 +39,11 @@ void DEC_r8(s_CPU* cpu, uint8_t instruction) {
     uint8_t r8 = instruction >> 3;
     if (r8 != 7) {
         old_val = cpu->registers[r8]--;
-        SET_FLAGS(cpu->flags, cpu->registers[r8] == 0, 1, HALF_CARRY(old_val, cpu->registers[r8]), cpu->flags & flag_C);
+        SET_FLAGS(cpu->flags, cpu->registers[r8] == 0, 1, HALF_CARRY_8BIT_SUB(old_val, 1), cpu->flags & flag_C);
     }
     else {
         set_r8(cpu, 7, (old_val = get_r8(cpu, 7)) - 1);
-        SET_FLAGS(cpu->flags, old_val - 1, 1, HALF_CARRY(old_val, old_val - 1), cpu->flags & flag_C);
+        SET_FLAGS(cpu->flags, old_val - 1, 1, HALF_CARRY_8BIT_SUB(old_val, 1), cpu->flags & flag_C);
     }
 }
 
@@ -60,6 +60,7 @@ void DEC_r16(s_CPU* cpu, uint8_t instruction) {
 
 
 void ARITH_A(s_CPU* cpu, uint8_t opcode, uint8_t operand) {
+    log("Operating on A: code %x with %02x", opcode, operand);
     uint8_t old_val = cpu->registers[r8_A];
     switch (opcode) {
         case 0x0:
@@ -69,7 +70,7 @@ void ARITH_A(s_CPU* cpu, uint8_t opcode, uint8_t operand) {
                     cpu->flags,
                     cpu->registers[r8_A] == 0,
                     0,
-                    HALF_CARRY(old_val, cpu->registers[r8_A]),
+                    HALF_CARRY_8BIT_ADD(old_val, operand),
                     (old_val + operand) > 0xff
             );
             break;
@@ -80,7 +81,7 @@ void ARITH_A(s_CPU* cpu, uint8_t opcode, uint8_t operand) {
                     cpu->flags,
                     cpu->registers[r8_A] == 0,
                     0,
-                    HALF_CARRY(old_val, cpu->registers[r8_A]),
+                    HALF_CARRY_8BIT_ADD(old_val, operand + ((cpu->flags & flag_C) ? 1 : 0)),
                     (old_val + ((cpu->flags & flag_C) ? 1 : 0)) > 0xff
             );
             break;
@@ -91,7 +92,7 @@ void ARITH_A(s_CPU* cpu, uint8_t opcode, uint8_t operand) {
                     cpu->flags,
                     cpu->registers[r8_A] == 0,
                     1,
-                    HALF_CARRY(old_val, cpu->registers[r8_A]),
+                    HALF_CARRY_8BIT_SUB(old_val, operand),
                     // I looked up how uint8_t's behaved for this:
                     (old_val - operand) < 0
             );
@@ -103,7 +104,7 @@ void ARITH_A(s_CPU* cpu, uint8_t opcode, uint8_t operand) {
                     cpu->flags,
                     cpu->registers[r8_A] == 0,
                     1,
-                    HALF_CARRY(old_val, cpu->registers[r8_A]),
+                    HALF_CARRY_8BIT_SUB(old_val, operand + ((cpu->flags & flag_C) ? 1 : 0)),
             // I looked up how uint8_t's behaved for this:
                     (old_val - ((cpu->flags & flag_C) ? 1 : 0)) < 0
             );
@@ -143,18 +144,15 @@ void ARITH_A(s_CPU* cpu, uint8_t opcode, uint8_t operand) {
             break;
         case 0x7:
             // CP
-            // SUB without storing, so we copy the old value back
-            cpu->registers[r8_A] -= operand;
+            // SUB without storing
             SET_FLAGS(
                     cpu->flags,
-                    cpu->registers[r8_A] == 0,
+                    (cpu->registers[r8_A] - operand) == 0,
                     1,
-                    HALF_CARRY(old_val, cpu->registers[r8_A]),
+                    HALF_CARRY_8BIT_SUB(cpu->registers[r8_A], operand),
                     // I looked up how uint8_t's behaved for this:
-                    (old_val - operand) < 0
+                    (cpu->registers[r8_A] - operand) < 0
             );
-
-            cpu->registers[r8_A] = old_val;
             break;
         default:
             log_fatal("invalid opcode for arithmetic A: %x", opcode);

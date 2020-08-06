@@ -80,9 +80,12 @@ static inline void set_r16(s_CPU* cpu, e_r16 index, uint16_t value) {
     }
 }
 
-#define HALF_CARRY(old_val, new_val) ((old_val ^ new_val) & 0x08)
+#define HALF_CARRY_8BIT_SUB(op1, op2) ((op1 & 0xF) < (op2 & 0xF))
+#define HALF_CARRY_8BIT_ADD(op1, op2) (((op1 & 0xF) + (op2 & 0xF)) & 0x10)
 
-#define SET_FLAGS(flags, Z, N, H, C) {  \
+// half carry is the result of the last adder operation, so for 16 bit the mask is 0xFFF instead of 0xFF
+
+#define SET_FLAGS(flags, Z, N, H, C) {    \
     flags = (Z ? flag_Z : 0) |            \
             (N ? flag_N : 0) |            \
             (H ? flag_H : 0) |            \
