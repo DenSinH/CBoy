@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 #include "../MEM/MEM.h"
+#include "../IO/IO.h"
 
 #include "log.h"
 
@@ -46,6 +47,7 @@ typedef struct s_CPU {
     int (*prefixed[0x100])(struct s_CPU* cpu, uint8_t instruction);
 
     s_MEM* mem;
+    s_IO* IO;
 
 } s_CPU;
 

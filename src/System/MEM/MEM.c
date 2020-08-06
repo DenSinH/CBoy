@@ -10,7 +10,6 @@
 
 void load_boot_rom(s_MEM* mem) {
     load_rom(mem, BOOT_ROM_FILE);
-    mem->IO.registers[0x44] = 0x90;       // VY
 }
 
 void load_rom(s_MEM* mem, char file_name[]) {
@@ -96,7 +95,7 @@ void load_rom(s_MEM* mem, char file_name[]) {
     }
 
 #define READ_BYTE(section, address) return section[address];
-#define READ_IO(mem, address) return IO_read(&mem->IO, address);
+#define READ_IO(mem, address) return IO_read(mem->IO, address);
 #define READ_IE(section, address) return section;
 uint8_t read_byte(s_MEM* mem, uint16_t address) {
     /* read single byte from memory */
@@ -110,7 +109,7 @@ uint16_t read_short(s_MEM* mem, uint16_t address) {
 
 
 #define WRITE_BYTE(section, address) section[address] = value;
-#define WRITE_IO(mem, address) IO_write(&mem->IO, address, value);
+#define WRITE_IO(mem, address) IO_write(mem->IO, address, value);
 #define WRITE_IE(section, address) section = value;
 void write_byte(s_MEM* mem, uint16_t address, uint8_t value) {
     /* write single byte to memory */

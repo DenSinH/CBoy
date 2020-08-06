@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "../MEM/MEM.h"
+#include "../IO/IO.h"
 
 #define GB_WIDTH 160
 #define GB_HEIGHT 144
@@ -12,6 +13,8 @@
 typedef struct s_PPU {
     uint32_t display[GB_WIDTH * GB_HEIGHT];
     uint32_t scanline;
+
+    s_IO* IO;
 } s_PPU;
 
 void do_scanline(s_PPU* ppu, s_MEM* mem);

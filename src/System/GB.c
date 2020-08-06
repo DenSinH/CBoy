@@ -21,6 +21,7 @@ s_GB* init_system() {
     memset(GB, 0x00, sizeof(s_GB));
 
     GB->cpu.mem = &(GB->mem);
+    GB->cpu.IO = GB->mem.IO = GB->ppu.IO = &(GB->IO);
     cpu_init(&GB->cpu);
     display_init("CBoy", GB_WIDTH * GB_SCALE, GB_HEIGHT * GB_SCALE);
 
@@ -45,7 +46,7 @@ void handle_events(s_GB* GB) {
     }
 }
 
-void do_frame(s_GB* GB) {
+void do_frontend(s_GB* GB) {
     blit_bitmap_32bppRGBA(GB->ppu.display, GB_WIDTH, GB_HEIGHT);
     handle_events(GB);
 }
@@ -64,7 +65,7 @@ void run(s_GB* GB) {
         GB->ppu.scanline++;
         if (GB->ppu.scanline == GB_HEIGHT) {
             // VBlank start
-            do_frame(GB);
+            do_frontend(GB);
 #ifdef FRAME_CAP
             nanosleep(&frame_delay, NULL);
 #endif
@@ -127,7 +128,7 @@ void run_trace(s_GB* GB, char log_file[]) {
 
             if (GB->ppu.scanline == GB_HEIGHT) {
                 // VBlank
-                do_frame(GB);
+                do_frontend(GB);
 
                 // we'll just unlimit the framerate if we're log diffing anyway
             }

@@ -16,7 +16,9 @@
 typedef struct {
     s_CPU cpu;
     s_MEM mem;
+    s_IO IO;
     s_PPU ppu;
+
     bool shut_down;
 } s_GB;
 
