@@ -5,6 +5,7 @@
 
 #include "LCD.h"
 
+#define IO_BASE 0xff00
 
 #define CAST_REGISTER(type, value) *(type*)&value
 #define CAST_UINT8_T(reg) *(uint8_t*)&reg

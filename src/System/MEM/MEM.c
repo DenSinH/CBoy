@@ -31,7 +31,7 @@ void load_rom(s_MEM* mem, char file_name[]) {
 /*
  * perform action on memory location based on address
  */
-#define ADDRESS_MAP(mem, address, action, IO_action, IE_action)            \
+#define ADDRESS_MAP(mem, address, action, IO_action, unused_action, IE_action)            \
     switch(address >> 12) {                                                \
         case 0x0 ... 0x3:                                                  \
             /* ROM bank 00 */                                              \
@@ -72,7 +72,8 @@ void load_rom(s_MEM* mem, char file_name[]) {
             else if (address < 0xFF00) {                                   \
                 /*  not usable */                                          \
                 /*  todo: open bus? */                                     \
-                log_fatal("unused section access")                         \
+                log_warn("unused section access @%x", address);            \
+                unused_action()                                            \
                 break;                                                     \
             }                                                              \
             else if (address < 0xFF80) {                                   \
@@ -96,10 +97,11 @@ void load_rom(s_MEM* mem, char file_name[]) {
 
 #define READ_BYTE(section, address) return section[address];
 #define READ_IO(mem, address) return IO_read(mem->IO, address);
+#define READ_UNUSED() return 0xff;
 #define READ_IE(section, address) return section;
 uint8_t read_byte(s_MEM* mem, uint16_t address) {
     /* read single byte from memory */
-    ADDRESS_MAP(mem, address, READ_BYTE, READ_IO, READ_IE);
+    ADDRESS_MAP(mem, address, READ_BYTE, READ_IO, READ_UNUSED, READ_IE);
 }
 
 uint16_t read_short(s_MEM* mem, uint16_t address) {
@@ -110,10 +112,11 @@ uint16_t read_short(s_MEM* mem, uint16_t address) {
 
 #define WRITE_BYTE(section, address) section[address] = value;
 #define WRITE_IO(mem, address) IO_write(mem->IO, address, value);
+#define WRITE_UNUSED() return;
 #define WRITE_IE(section, address) section = value;
 void write_byte(s_MEM* mem, uint16_t address, uint8_t value) {
     /* write single byte to memory */
-    ADDRESS_MAP(mem, address, WRITE_BYTE, WRITE_IO, WRITE_IE)
+    ADDRESS_MAP(mem, address, WRITE_BYTE, WRITE_IO, WRITE_UNUSED, WRITE_IE)
 }
 
 void write_short(s_MEM* mem, uint16_t address, uint16_t value) {

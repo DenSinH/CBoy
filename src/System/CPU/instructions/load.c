@@ -32,6 +32,7 @@ int LD_r8_HL(s_CPU* cpu, uint8_t instruction) {
      * 4-7 6/e
      * 01RR R110
      */
+    log("LD_r8_HL %x", instruction);
     cpu->registers[(instruction >> 3) & 7] = read_byte(cpu->mem, get_r16(cpu, r16_HL));
     return 8;
 }

@@ -53,13 +53,13 @@ typedef struct s_CPU {
 
 static inline uint8_t get_r8(s_CPU* cpu, e_r8 index) {
     if (index == r8_HL)
-        return read_byte(cpu->mem, (uint16_t)(cpu->registers[index] | (cpu->registers[index + 1] << 8)));
+        return read_byte(cpu->mem, (uint16_t)(cpu->registers[index + 1] | (cpu->registers[index] << 8)));
     return cpu->registers[index];
 }
 
 static inline void set_r8(s_CPU* cpu, e_r8 index, uint8_t value) {
     if (index == r8_HL)
-        write_byte(cpu->mem, (uint16_t)(cpu->registers[index] | (cpu->registers[index + 1] << 8)), value);
+        write_byte(cpu->mem, (uint16_t)(cpu->registers[index + 1] | (cpu->registers[index] << 8)), value);
     else
         cpu->registers[index] = value;
 }

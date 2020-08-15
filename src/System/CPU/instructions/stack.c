@@ -15,7 +15,7 @@ int PUSH_r16(s_CPU* cpu, uint8_t instruction) {
      */
     log("PUSH_r16 %x", instruction);
 
-    uint8_t index = (instruction >> 4) & 2;
+    uint8_t index = (instruction >> 4) & 3;
     if (index < 3) {
         // push normal r16
         write_byte(cpu->mem, --cpu->SP, cpu->registers[index << 1]);           // push HI
@@ -36,7 +36,7 @@ int POP_r16(s_CPU* cpu, uint8_t instruction) {
      */
     log("POP_r16 %x", instruction);
 
-    uint8_t index = (instruction >> 4) & 2;
+    uint8_t index = (instruction >> 4) & 3;
     if (index < 3) {
         // pop normal r16
         cpu->registers[(index << 1) + 1] = read_byte(cpu->mem, cpu->SP++);       // pop LO
@@ -44,8 +44,8 @@ int POP_r16(s_CPU* cpu, uint8_t instruction) {
     }
     else {
         // pop AF
-        cpu->registers[r8_A] = read_byte(cpu->mem, cpu->SP++);       // pop LO
-        cpu->flags = read_byte(cpu->mem, cpu->SP++);                 // pop HI
+        cpu->flags = read_byte(cpu->mem, cpu->SP++);                             // pop LO
+        cpu->registers[r8_A] = read_byte(cpu->mem, cpu->SP++);                   // pop HI
     }
     return 12;
 }

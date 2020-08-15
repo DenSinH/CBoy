@@ -6,7 +6,7 @@
 #include "log.h"
 
 #define _GRAYSCALE_2BPP_TO_RGB_FLIPPED(intensity) ((intensity << 22) | (intensity << 14) | (intensity << 6))
-#define GRAYSCALE_2BPP_TO_RGB(intensity) _GRAYSCALE_2BPP_TO_RGB_FLIPPED(3 - intensity)
+#define GRAYSCALE_2BPP_TO_RGB(intensity) (3 - intensity) * 0x00555555
 
 
 void update_IO(s_PPU* ppu) {

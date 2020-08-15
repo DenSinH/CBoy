@@ -155,6 +155,10 @@ void run_trace(s_GB* GB, char log_file[]) {
             }
             do_scanline(&GB->ppu, &GB->mem);
         }
+
+        if (GB->cpu.PC == 0xC820) {
+            log_warn("Should have written to D81B?")
+        }
     }
 
     display_close();

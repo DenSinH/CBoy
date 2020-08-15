@@ -6,6 +6,9 @@
 
 uint8_t IO_read(s_IO* IO, uint16_t address) {
     // log_debug("Read %02x from IO port %02x", IO->registers[address], address);
+    if (address == reg_LY) {
+        return 0x90;
+    }
     return IO->registers[address];
 }
 

@@ -205,15 +205,15 @@ int SRA_r8(s_CPU* cpu, uint8_t instruction) {
 
     uint8_t carry = cpu->registers[instruction & 7] & 1;
     cpu->registers[instruction & 7] = (uint8_t)(((int8_t)cpu->registers[instruction & 7]) >> 1);
-    SET_FLAGS(cpu->flags, cpu->registers[instruction] == 0, 0, 0, carry);
+    SET_FLAGS(cpu->flags, cpu->registers[instruction & 7] == 0, 0, 0, carry);
     return 8;
 }
 
 int SRL_HL(s_CPU* cpu, uint8_t instruction) {
     /*
-     * 2E
+     * 3E
      */
-    log("SRA_HL %x", instruction);
+    log("SRL_HL %x", instruction);
     uint8_t value = read_byte(cpu->mem, get_r16(cpu, r16_HL));
     uint8_t carry = value & 1;
     value >>= 1;
@@ -224,12 +224,12 @@ int SRL_HL(s_CPU* cpu, uint8_t instruction) {
 
 int SRL_r8(s_CPU* cpu, uint8_t instruction) {
     /*
-     * 2 8-F
+     * 3 8-F
      */
-    log("SRA_r8 %x", instruction);
+    log("SRL_r8 %x", instruction);
 
     uint8_t carry = cpu->registers[instruction & 7] & 1;
     cpu->registers[instruction & 7] >>= 1;
-    SET_FLAGS(cpu->flags, cpu->registers[instruction] == 0, 0, 0, carry);
+    SET_FLAGS(cpu->flags, cpu->registers[instruction & 7] == 0, 0, 0, carry);
     return 8;
 }

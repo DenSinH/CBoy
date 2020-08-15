@@ -95,6 +95,16 @@ int JP_cc_direct_unused(s_CPU* cpu, uint8_t instruction) {
     }
 }
 
+int JP_HL(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * E9
+     */
+    log("JP_HL %x", instruction);
+
+    cpu->PC = get_r16(cpu, r16_HL);
+    return 4;
+}
+
 int CALL_cc(s_CPU* cpu, uint8_t instruction) {
     /*
      * C/D 4/C for different condition codes

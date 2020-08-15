@@ -188,6 +188,11 @@ void cpu_init(s_CPU* cpu) {
             cpu->unprefixed[instruction] = ARITH_A_u8;
         }
         // col 7
+        // col 9
+        else if (instruction == 0xE9) {
+            // 111X A
+            cpu->unprefixed[instruction] = JP_HL;
+        }
         // col A
         else if ((instruction & 0xEF) == 0xEA) {
             // 111X A
@@ -276,7 +281,15 @@ void cpu_init(s_CPU* cpu) {
             // 0011 1XXX
             cpu->prefixed[instruction] = SRL_r8;
         }
-
+        /* ========================================================
+         *                      ROWS 4-7
+         * ========================================================
+         */
+        /* order of next 2 decodings is important */
+        else if ((instruction & 0xc7) == 0x46) {
+            // 01XX XXXX
+            cpu->prefixed[instruction] = BIT_u3_HL;
+        }
         else if ((instruction & 0xc0) == 0x40) {
             // 01XX XXXX
             cpu->prefixed[instruction] = BIT_u3_r8;

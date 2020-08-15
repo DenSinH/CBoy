@@ -9,7 +9,7 @@ int INC_r8(s_CPU* cpu, uint8_t instruction) {
     uint8_t r8 = instruction >> 3;
     if (r8 != r8_HL) {
         old_val = cpu->registers[r8]++;
-        SET_FLAGS(cpu->flags, cpu->registers[r8] == 0, 0, HALF_CARRY_8BIT_ADD(old_val, 1), 0);
+        SET_FLAGS(cpu->flags, cpu->registers[r8] == 0, 0, HALF_CARRY_8BIT_ADD(old_val, 1), cpu->flags & flag_C);
         return 4;
     }
     else {
@@ -46,7 +46,10 @@ int DEC_r8(s_CPU* cpu, uint8_t instruction) {
         return 4;
     }
     else {
-        set_r8(cpu, r8_HL, (old_val = get_r8(cpu, r8_HL)) - 1);
+        uint16_t HL = get_r16(cpu, r16_HL);
+        old_val = read_byte(cpu->mem, HL);
+        write_byte(cpu->mem, HL, old_val - 1);
+
         SET_FLAGS(cpu->flags, (old_val - 1) == 0, 1, HALF_CARRY_8BIT_SUB(old_val, 1), cpu->flags & flag_C);
         return 12;
     }
@@ -110,7 +113,7 @@ void ARITH_A(s_CPU* cpu, uint8_t opcode, uint8_t operand) {
                     cpu->registers[r8_A] == 0,
                     0,
                     HALF_CARRY_8BIT_ADD(old_val, operand + ((cpu->flags & flag_C) ? 1 : 0)),
-                    (old_val + ((cpu->flags & flag_C) ? 1 : 0)) > 0xff
+                    (old_val + operand + ((cpu->flags & flag_C) ? 1 : 0)) > 0xff
             );
             break;
         case 0x2:
