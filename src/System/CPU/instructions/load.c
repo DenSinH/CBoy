@@ -22,7 +22,8 @@ int LD_HL_r8_HALT(s_CPU* cpu, uint8_t instruction) {
         return 8;
     }
     else {
-        log_fatal("unimplemented instruction: HALT");
+        // log_fatal("unimplemented instruction: HALT");
+        return 8;
     }
 }
 
@@ -92,10 +93,10 @@ int LD_r16_A(s_CPU* cpu, uint8_t instruction) {
 
 int LD_A_r16(s_CPU* cpu, uint8_t instruction) {
     /*
-     * LD [BC], A   : 0x0a
-     * LD [DE], A   : 0x1a
-     * LD [HL+], A  : 0x2a
-     * LD [HL-], A  : 0x3a
+     * LD A, [BC]   : 0x0a
+     * LD A, [DE]   : 0x1a
+     * LD A, [HL+]  : 0x2a
+     * LD A, [HL-]  : 0x3a
      */
     log("LD_A_r16 %x", instruction);
     switch (instruction >> 4) {

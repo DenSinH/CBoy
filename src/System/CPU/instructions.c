@@ -87,6 +87,10 @@ void cpu_init(s_CPU* cpu) {
         }
         // col 8
         // col 9
+        else if ((instruction & 0xcf) == 0x09) {
+            // 00xx 9
+            cpu->unprefixed[instruction] = ADD_HL_r16;
+        }
         // col A
         else if ((instruction & 0xcf) == 0x0a) {
             // 00xx a

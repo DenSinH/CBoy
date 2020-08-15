@@ -22,6 +22,7 @@ s_GB* init_system() {
 
     GB->cpu.mem = &(GB->mem);
     GB->ppu.mem = &(GB->mem);
+    GB->ppu.scanline = &GB->IO.registers[reg_LY];
     GB->cpu.IO = GB->mem.IO = GB->ppu.IO = &(GB->IO);
     cpu_init(&GB->cpu);
     display_init("CBoy", GB_WIDTH * GB_SCALE, GB_HEIGHT * GB_SCALE);
@@ -31,18 +32,28 @@ s_GB* init_system() {
 
 void handle_events(s_GB* GB) {
     SDL_Event e;
-
+    char log[LOG_LINE_LENGTH + 1];
     while (SDL_PollEvent( &e ) != 0) {
         switch (e.type) {
             case SDL_QUIT:
                 GB->shut_down = true;
                 break;
             case SDL_KEYDOWN:
-                for (int i = 0; i < sizeof(GB->mem.VRAM); i++) {
-                    if ((i & 0x1f) == 0) {
-                        printf("\n %04x: ", i);
-                    }
-                    printf("%02x ", GB->mem.VRAM[i]);
+                switch (SDL_GetKeyFromScancode(e.key.keysym.scancode)) {
+                    case 'v':
+                        for (int i = 0; i < sizeof(GB->mem.VRAM); i++) {
+                            if ((i & 0x1f) == 0) {
+                                printf("\n %04x: ", i);
+                            }
+                            printf("%02x ", GB->mem.VRAM[i]);
+                        }
+                        break;
+                    case 'i':
+                        mGBA_log_format(&GB->cpu, log);
+                        printf("%s\n", log);
+                        break;
+                    default:
+                        break;
                 }
                 break;
             case SDL_KEYUP:
@@ -69,16 +80,16 @@ void run(s_GB* GB) {
         }
         cycles -= GB_DOTS_PER_SCANLINE * 4;
 
-        GB->ppu.scanline++;
-        if (GB->ppu.scanline == GB_HEIGHT) {
+        (*GB->ppu.scanline)++;
+        if (*GB->ppu.scanline == GB_HEIGHT) {
             // VBlank start
             do_frontend(GB);
 #ifdef FRAME_CAP
             nanosleep(&frame_delay, NULL);
 #endif
         }
-        else if (GB->ppu.scanline == GB_HEIGHT + GB_VBLANK_LINES) {
-            GB->ppu.scanline = 0;
+        else if (*GB->ppu.scanline == GB_HEIGHT + GB_VBLANK_LINES) {
+            *GB->ppu.scanline = 0;
         }
         do_scanline(&GB->ppu, &GB->mem);
     }
@@ -131,16 +142,16 @@ void run_trace(s_GB* GB, char log_file[]) {
 
         if (cycles > GB_DOTS_PER_SCANLINE * 4) {
             cycles -= GB_DOTS_PER_SCANLINE;
-            GB->ppu.scanline++;
+            (*GB->ppu.scanline)++;
 
-            if (GB->ppu.scanline == GB_HEIGHT) {
+            if ((*GB->ppu.scanline) == GB_HEIGHT) {
                 // VBlank
                 do_frontend(GB);
 
                 // we'll just unlimit the framerate if we're log diffing anyway
             }
-            else if (GB->ppu.scanline == GB_HEIGHT + GB_VBLANK_LINES) {
-                GB->ppu.scanline = 0;
+            else if ((*GB->ppu.scanline) == GB_HEIGHT + GB_VBLANK_LINES) {
+                (*GB->ppu.scanline) = 0;
             }
             do_scanline(&GB->ppu, &GB->mem);
         }

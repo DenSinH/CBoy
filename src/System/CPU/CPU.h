@@ -84,16 +84,17 @@ static inline void set_r16(s_CPU* cpu, e_r16 index, uint16_t value) {
 }
 
 #define HALF_CARRY_8BIT_SUB(op1, op2) ((op1 & 0xF) < (op2 & 0xF))
+#define HALF_CARRY_16BIT_SUB(op1, op2) ((op1 & 0xFFF) < (op2 & 0xFFF))
 #define HALF_CARRY_8BIT_ADD(op1, op2) (((op1 & 0xF) + (op2 & 0xF)) & 0x10)
+#define HALF_CARRY_16BIT_ADD(op1, op2) (((op1 & 0xFFF) + (op2 & 0xFFF)) & 0x1000)
 
 // half carry is the result of the last adder operation, so for 16 bit the mask is 0xFFF instead of 0xFF
 
-#define SET_FLAGS(flags, Z, N, H, C) {    \
+#define SET_FLAGS(flags, Z, N, H, C)      \
     flags = (Z ? flag_Z : 0) |            \
             (N ? flag_N : 0) |            \
             (H ? flag_H : 0) |            \
-            (C ? flag_C : 0);             \
-}
+            (C ? flag_C : 0)
 
 #define LOG_LINE_LENGTH 68
 static inline void mGBA_log_format(s_CPU* cpu, char dest[LOG_LINE_LENGTH + 1]) {

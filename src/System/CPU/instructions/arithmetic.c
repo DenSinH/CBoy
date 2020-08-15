@@ -64,6 +64,28 @@ int DEC_r16(s_CPU* cpu, uint8_t instruction) {
     return 8;
 }
 
+int ADD_HL_r16(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * 0-3 9
+     * 00RR 1001
+     */
+    log("ADD_r16 %x", instruction);
+    uint16_t old_val, operand;
+    old_val = get_r16(cpu, r16_HL);
+    operand = get_r16(cpu, (instruction >> 3) & 0xfffe);
+    set_r16(cpu, r16_HL, old_val + operand);
+
+    SET_FLAGS(
+            cpu->flags,
+            cpu->flags & flag_Z,
+            0,
+            HALF_CARRY_16BIT_ADD(old_val, operand),
+            old_val + operand > 0xffff
+    );
+
+    return 8;
+}
+
 
 void ARITH_A(s_CPU* cpu, uint8_t opcode, uint8_t operand) {
     log("Operating on A: code %x with %02x", opcode, operand);

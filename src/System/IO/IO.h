@@ -10,7 +10,8 @@
 #define CAST_UINT8_T(reg) *(uint8_t*)&reg
 
 enum IO_regs {
-    reg_LCDC = 0x40
+    reg_LCDC    = 0x40,
+    reg_LY      = 0x44,
 } IO_regs;
 
 typedef struct s_IO {
