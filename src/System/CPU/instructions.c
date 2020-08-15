@@ -86,6 +86,10 @@ void cpu_init(s_CPU* cpu) {
             }
         }
         // col 8
+        else if (instruction == 8) {
+            // 0000 1000
+            cpu->unprefixed[instruction] = LD_u16_SP;
+        }
         // col 9
         else if ((instruction & 0xcf) == 0x09) {
             // 00xx 9
@@ -187,11 +191,24 @@ void cpu_init(s_CPU* cpu) {
             // 11XX X110
             cpu->unprefixed[instruction] = ARITH_A_u8;
         }
-        // col 7
+        // col 7/F
+        else if ((instruction & 0xc7) == 0xc7) {
+            // 11XX X111
+            cpu->unprefixed[instruction] = RST;
+        }
+        // col 8
+        else if (instruction == 0xE8) {
+            cpu->unprefixed[instruction] = ADD_SP_i8;
+        }
+        else if (instruction == 0xF8) {
+            cpu->unprefixed[instruction] = LD_HL_SP_i8;
+        }
         // col 9
         else if (instruction == 0xE9) {
-            // 111X A
             cpu->unprefixed[instruction] = JP_HL;
+        }
+        else if (instruction == 0xF9) {
+            cpu->unprefixed[instruction] = LD_SP_HL;
         }
         // col A
         else if ((instruction & 0xEF) == 0xEA) {
@@ -270,6 +287,16 @@ void cpu_init(s_CPU* cpu) {
         else if ((instruction & 0xf8) == 0x28) {
             // 0010 1XXX
             cpu->prefixed[instruction] = SRA_r8;
+        }
+
+        /* order of next 2 decodings is important */
+        else if (instruction == 0x36) {
+            // 0011 0110
+            cpu->prefixed[instruction] = SWAP_HL;
+        }
+        else if ((instruction & 0xf8) == 0x30) {
+            // 0011 0XXX
+            cpu->prefixed[instruction] = SWAP_r8;
         }
 
         /* order of next 2 decodings is important */

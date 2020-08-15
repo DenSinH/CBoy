@@ -7,7 +7,7 @@
 
 int main(int argc, char** argv) {
     s_GB* GB = init_system();
-    load_rom(&GB->mem, "roms/tests/cpu_instrs/individual/08-misc instrs.gb");
+    load_rom(&GB->mem, "roms/tests/cpu_instrs/individual/10-bit ops.gb");
 
     skip_boot_rom(&GB->cpu);
     // load_boot_rom(&GB->mem);

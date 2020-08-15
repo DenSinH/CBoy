@@ -49,3 +49,59 @@ int POP_r16(s_CPU* cpu, uint8_t instruction) {
     }
     return 12;
 }
+
+int LD_u16_SP(s_CPU* cpu, uint8_t instruction) {
+    // 08
+    log("LD_u16_SP %x", instruction);
+
+    uint16_t address = read_short(cpu->mem, cpu->PC);
+    cpu->PC += 2;
+    write_short(cpu->mem, address, cpu->SP);
+
+    return 20;
+}
+
+int LD_SP_HL(s_CPU* cpu, uint8_t instruction) {
+    // F9
+    log("LD_SP_HL %x", instruction);
+
+    cpu->SP = get_r16(cpu, r16_HL);
+
+    return 8;
+}
+
+int ADD_SP_i8(s_CPU* cpu, uint8_t instruction) {
+    // E8
+    log("ADD_SP_i8 %x", instruction);
+
+    int8_t offset = (int8_t)read_byte(cpu->mem, cpu->PC++);
+
+    SET_FLAGS(
+            cpu->flags,
+            0,
+            0,
+            HALF_CARRY_16BIT_ADD(cpu->SP & 0xff, (int16_t)offset),
+            ((cpu->SP & 0xff) + offset) > 0xff
+    );
+    cpu->SP += offset;
+
+    return 16;
+}
+
+int LD_HL_SP_i8(s_CPU* cpu, uint8_t instruction) {
+    // F8
+    log("LD_HL_SP %x", instruction);
+
+    int8_t offset = (int8_t)read_byte(cpu->mem, cpu->PC++);
+    set_r16(cpu, r16_HL, cpu->SP + offset);
+
+    SET_FLAGS(
+        cpu->flags,
+        0,
+        0,
+        HALF_CARRY_16BIT_ADD(cpu->SP & 0xff, (int16_t)offset),
+        ((cpu->SP & 0xff) + offset) > 0xff
+    );
+
+    return 12;
+}

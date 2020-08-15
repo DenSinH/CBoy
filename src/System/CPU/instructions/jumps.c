@@ -201,9 +201,24 @@ int RET_cc(s_CPU* cpu, uint8_t instruction) {
             break;
         case 0xd9:
             // RETI
-            log_fatal("Unimplemented instruction: RETI");
-            break;
+            cpu->IME = true;
+            POP_PC(cpu);
+            return 16;
         default:
             log_fatal("unimplemented instruction: %x", instruction);
     }
+}
+
+int RST(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * C-F 7/F
+     * 11XX X111
+     * XXX for 0/8/0x10/0x18/...
+     */
+    log("RST %x", instruction);
+
+    PUSH_PC(cpu);
+    cpu->PC = instruction & 0x38;
+
+    return 16;
 }
