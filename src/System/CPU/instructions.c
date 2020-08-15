@@ -101,6 +101,15 @@ void cpu_init(s_CPU* cpu) {
             // 00xx 1011
             cpu->unprefixed[instruction] = DEC_r16;
         }
+        // col F
+        else if (instruction == 0x2f) {
+            // 00xx 1011
+            cpu->unprefixed[instruction] = CPL;
+        }
+        else if (instruction == 0x3f) {
+            // 00xx 1011
+            cpu->unprefixed[instruction] = CCF;
+        }
 
         /* ========================================================
          *                      SECOND 4 ROWS

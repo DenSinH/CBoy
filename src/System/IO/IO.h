@@ -12,6 +12,7 @@
 enum IO_regs {
     reg_LCDC    = 0x40,
     reg_LY      = 0x44,
+    reg_BGP     = 0x47
 } IO_regs;
 
 typedef struct s_IO {

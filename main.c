@@ -7,7 +7,7 @@
 
 int main(int argc, char** argv) {
     s_GB* GB = init_system();
-    load_rom(&GB->mem, "roms/tests/plotpixel.gb");
+    load_rom(&GB->mem, "roms/tests/LZ77GFX.gb");
 
     skip_boot_rom(&GB->cpu);
     // load_boot_rom(&GB->mem);
