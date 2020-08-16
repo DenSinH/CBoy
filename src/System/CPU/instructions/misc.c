@@ -31,3 +31,24 @@ int CCF(s_CPU* cpu, uint8_t instruction) {
     SET_FLAGS(cpu->flags, cpu->flags & flag_Z, 0, 0, !(cpu->flags & flag_C));
     return 4;
 }
+
+int SCF(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * 37
+     */
+    log("SCF %x", instruction);
+    SET_FLAGS(cpu->flags, cpu->flags & flag_Z, 0, 0, 1);
+    return 4;
+}
+
+int DAA(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * 27
+     */
+    log("DAA %x", instruction);
+    cpu->registers[r8_A] = ((cpu->registers[r8_A] / 10) << 4) | (cpu->registers[r8_A] % 10);
+
+    // todo: Carry flag?
+    SET_FLAGS(cpu->flags, cpu->registers[r8_A] == 0, cpu->flags & flag_N, 0, cpu->flags & flag_C);
+    return 4;
+}

@@ -42,6 +42,7 @@ typedef struct s_CPU {
     uint16_t SP, PC;
     uint8_t flags;
     bool IME;
+    bool freeze;
 
     int (*unprefixed[0x100])(struct s_CPU* cpu, uint8_t instruction);
     int (*prefixed[0x100])(struct s_CPU* cpu, uint8_t instruction);
@@ -84,8 +85,10 @@ static inline void set_r16(s_CPU* cpu, e_r16 index, uint16_t value) {
 }
 
 #define HALF_CARRY_8BIT_SUB(op1, op2) ((op1 & 0xF) < (op2 & 0xF))
+#define HALF_CARRY_8BIT_SUB_C(op1, op2, C) ((op1 & 0xF) < ((op2 & 0xF) + C))
 #define HALF_CARRY_16BIT_SUB(op1, op2) ((op1 & 0xFFF) < (op2 & 0xFFF))
 #define HALF_CARRY_8BIT_ADD(op1, op2) (((op1 & 0xF) + (op2 & 0xF)) & 0x10)
+#define HALF_CARRY_8BIT_ADD_C(op1, op2, C) (((op1 & 0xF) + (op2 & 0xF) + C) & 0x10)
 #define HALF_CARRY_16BIT_ADD(op1, op2) (((op1 & 0xFFF) + (op2 & 0xFFF)) & 0x1000)
 
 // half carry is the result of the last adder operation, so for 16 bit the mask is 0xFFF instead of 0xFF

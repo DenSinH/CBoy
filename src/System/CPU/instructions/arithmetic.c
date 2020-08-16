@@ -112,7 +112,7 @@ void ARITH_A(s_CPU* cpu, uint8_t opcode, uint8_t operand) {
                     cpu->flags,
                     cpu->registers[r8_A] == 0,
                     0,
-                    HALF_CARRY_8BIT_ADD(old_val, operand + ((cpu->flags & flag_C) ? 1 : 0)),
+                    HALF_CARRY_8BIT_ADD_C(old_val, operand, (cpu->flags & flag_C) ? 1 : 0),
                     (old_val + operand + ((cpu->flags & flag_C) ? 1 : 0)) > 0xff
             );
             break;
@@ -135,9 +135,9 @@ void ARITH_A(s_CPU* cpu, uint8_t opcode, uint8_t operand) {
                     cpu->flags,
                     cpu->registers[r8_A] == 0,
                     1,
-                    HALF_CARRY_8BIT_SUB(old_val, operand + ((cpu->flags & flag_C) ? 1 : 0)),
-            // I looked up how uint8_t's behaved for this:
-                    (old_val - ((cpu->flags & flag_C) ? 1 : 0)) < 0
+                    HALF_CARRY_8BIT_SUB_C(old_val, operand, (cpu->flags & flag_C) ? 1 : 0),
+                    // I looked up how uint8_t's behaved for this:
+                    (old_val - (operand + ((cpu->flags & flag_C) ? 1 : 0))) < 0
             );
             break;
         case 0x4:

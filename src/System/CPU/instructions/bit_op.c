@@ -62,3 +62,53 @@ int SWAP_r8(s_CPU* cpu, uint8_t instruction) {
 
     return 8;
 }
+
+int RES_HL(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * 8-B 6/E
+     * 10BB B110
+     */
+    log("RES_HL %x", instruction)
+
+    uint8_t bit = (instruction >> 3) & 0x07;
+    uint16_t HL = get_r16(cpu, r16_HL);
+    write_byte(cpu->mem, HL, read_byte(cpu->mem, HL) & (~(1 << bit)));
+    return 16;
+}
+
+int RES_r8(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * 8-B XXXX
+     * 10BB BRRR
+     */
+    log("RES_r8 %x", instruction)
+
+    uint8_t bit = (instruction >> 3) & 0x07;
+    cpu->registers[instruction & 0x07] &= ~(1 << bit);
+    return 8;
+}
+
+int SET_HL(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * C-F 6/E
+     * 11BB B110
+     */
+    log("SET_HL %x", instruction)
+
+    uint8_t bit = (instruction >> 3) & 0x07;
+    uint16_t HL = get_r16(cpu, r16_HL);
+    write_byte(cpu->mem, HL, read_byte(cpu->mem, HL) | (1 << bit));
+    return 16;
+}
+
+int SET_r8(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * C-F 6/E
+     * 11BB BRRR
+     */
+    log("SET_r8 %x", instruction)
+
+    uint8_t bit = (instruction >> 3) & 0x07;
+    cpu->registers[instruction & 0x07] |= 1 << bit;
+    return 8;
+}

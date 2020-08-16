@@ -66,6 +66,14 @@ void cpu_init(s_CPU* cpu) {
             cpu->unprefixed[instruction] = LD_r8_u8;
         }
         // col 7 / F
+        else if (instruction == 0x27) {
+            // 27
+            cpu->unprefixed[instruction] = DAA;
+        }
+        else if (instruction == 0x37) {
+            // 37
+            cpu->unprefixed[instruction] = SCF;
+        }
         else if ((instruction & 0xe7) == 0x07) {
             // 000X X111
             switch (instruction) {
@@ -82,7 +90,7 @@ void cpu_init(s_CPU* cpu) {
                     cpu->unprefixed[instruction] = RRA;
                     break;
                 default:
-                log_fatal("Invalid instruction when decoding");
+                    log_fatal("Invalid instruction when decoding");
             }
         }
         // col 8
@@ -314,12 +322,38 @@ void cpu_init(s_CPU* cpu) {
          */
         /* order of next 2 decodings is important */
         else if ((instruction & 0xc7) == 0x46) {
-            // 01XX XXXX
+            // 01XX X110
             cpu->prefixed[instruction] = BIT_u3_HL;
         }
         else if ((instruction & 0xc0) == 0x40) {
             // 01XX XXXX
             cpu->prefixed[instruction] = BIT_u3_r8;
+        }
+        /* ========================================================
+         *                      ROWS 8-B
+         * ========================================================
+         */
+        /* order of next 2 decodings is important */
+        else if ((instruction & 0xc7) == 0x86) {
+            // 10XX X110
+            cpu->prefixed[instruction] = RES_HL;
+        }
+        else if ((instruction & 0xc0) == 0x80) {
+            // 10XX XXXX
+            cpu->prefixed[instruction] = RES_r8;
+        }
+        /* ========================================================
+         *                      ROWS 8-B
+         * ========================================================
+         */
+        /* order of next 2 decodings is important */
+        else if ((instruction & 0xc7) == 0xc6) {
+            // 11XX X110
+            cpu->prefixed[instruction] = SET_HL;
+        }
+        else if ((instruction & 0xc0) == 0xc0) {
+            // 11XX XXXX
+            cpu->prefixed[instruction] = SET_r8;
         }
         else {
             cpu->prefixed[instruction] = unimplemented_prefixed;

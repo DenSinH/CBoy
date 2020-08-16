@@ -44,7 +44,7 @@ int POP_r16(s_CPU* cpu, uint8_t instruction) {
     }
     else {
         // pop AF
-        cpu->flags = read_byte(cpu->mem, cpu->SP++);                             // pop LO
+        cpu->flags = read_byte(cpu->mem, cpu->SP++) & 0xf0;                      // pop LO
         cpu->registers[r8_A] = read_byte(cpu->mem, cpu->SP++);                   // pop HI
     }
     return 12;
@@ -80,8 +80,8 @@ int ADD_SP_i8(s_CPU* cpu, uint8_t instruction) {
             cpu->flags,
             0,
             0,
-            HALF_CARRY_16BIT_ADD(cpu->SP & 0xff, (int16_t)offset),
-            ((cpu->SP & 0xff) + offset) > 0xff
+            HALF_CARRY_8BIT_ADD(cpu->SP & 0xff, offset),
+            ((cpu->SP & 0xff) + (uint8_t)offset) > 0xff
     );
     cpu->SP += offset;
 
@@ -99,8 +99,8 @@ int LD_HL_SP_i8(s_CPU* cpu, uint8_t instruction) {
         cpu->flags,
         0,
         0,
-        HALF_CARRY_16BIT_ADD(cpu->SP & 0xff, (int16_t)offset),
-        ((cpu->SP & 0xff) + offset) > 0xff
+        HALF_CARRY_8BIT_ADD(cpu->SP & 0xff, (int16_t)offset),
+        ((cpu->SP & 0xff) + (uint8_t)offset) > 0xff
     );
 
     return 12;

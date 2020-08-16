@@ -6,8 +6,8 @@ int LD_r8_u8(s_CPU* cpu, uint8_t instruction) {
      */
     log("LD_r8_u8 %x", instruction);
 
-    uint8_t imm = read_byte(cpu->mem, cpu->PC++);
-    set_r8(cpu, instruction >> 3, imm);
+    uint8_t value = read_byte(cpu->mem, cpu->PC++);
+    set_r8(cpu, instruction >> 3, value);
     return ((instruction >> 3) == r8_HL) ? 12 : 8;
 }
 
@@ -131,7 +131,7 @@ int LD_FF00_A(s_CPU* cpu, uint8_t instruction) {
             return 12;
         case 0xe2:
             // LD (FF00 + C), A
-            write_byte(cpu->mem, 0xff00 + ((cpu->flags & flag_C) ? 1 : 0), cpu->registers[r8_A]);
+            write_byte(cpu->mem, 0xff00 + cpu->registers[r8_C], cpu->registers[r8_A]);
             return 8;
         case 0xf0:
             // LD A, (FF00 + u8)
@@ -139,7 +139,7 @@ int LD_FF00_A(s_CPU* cpu, uint8_t instruction) {
             return 12;
         case 0xf2:
             // LD A, (FF00 + C)
-            cpu->registers[r8_A] = read_byte(cpu->mem, 0xff00 + ((cpu->flags & flag_C) ? 1 : 0));
+            cpu->registers[r8_A] = read_byte(cpu->mem, 0xff00 + cpu->registers[r8_C]);
             return 8;
         default:
             log_fatal("Invalid LD_FF00_A instruction: %x", instruction);

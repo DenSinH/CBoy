@@ -12,6 +12,8 @@
 
 #include "log.h"
 
+#define LOG_CPU
+
 #ifdef FRAME_CAP
 const struct timespec frame_delay = {.tv_sec = 0, .tv_nsec = 16000000 };  // 16ms
 #endif
@@ -40,6 +42,31 @@ void handle_events(s_GB* GB) {
                 break;
             case SDL_KEYDOWN:
                 switch (SDL_GetKeyFromScancode(e.key.keysym.scancode)) {
+                    case GB_SDL_BUTTON_LEFT_KEYSYM:
+                        GB->IO.joypad.Left = true;
+                        break;
+                    case GB_SDL_BUTTON_RIGHT_KEYSYM:
+                        GB->IO.joypad.Right = true;
+                        break;
+                    case GB_SDL_BUTTON_DOWN_KEYSYM:
+                        GB->IO.joypad.Down = true;
+                        break;
+                    case GB_SDL_BUTTON_UP_KEYSYM:
+                        GB->IO.joypad.Up = true;
+                        break;
+                    case 'z':
+                        GB->IO.joypad.A = true;
+                        break;
+                    case 'x':
+                        GB->IO.joypad.B = true;
+                        break;
+                    case 'a':
+                        GB->IO.joypad.Start = true;
+                        break;
+                    case 's':
+                        GB->IO.joypad.Select = true;
+                        break;
+
                     case 'v':
                         for (int i = 0; i < sizeof(GB->mem.VRAM); i++) {
                             if ((i & 0x1f) == 0) {
@@ -57,7 +84,34 @@ void handle_events(s_GB* GB) {
                 }
                 break;
             case SDL_KEYUP:
-                break;
+                switch (SDL_GetKeyFromScancode(e.key.keysym.scancode)) {
+                    case GB_SDL_BUTTON_LEFT_KEYSYM:
+                        GB->IO.joypad.Left = false;
+                        break;
+                    case GB_SDL_BUTTON_RIGHT_KEYSYM:
+                        GB->IO.joypad.Right = false;
+                        break;
+                    case GB_SDL_BUTTON_DOWN_KEYSYM:
+                        GB->IO.joypad.Down = false;
+                        break;
+                    case GB_SDL_BUTTON_UP_KEYSYM:
+                        GB->IO.joypad.Up = false;
+                        break;
+                    case 'z':
+                        GB->IO.joypad.A = false;
+                        break;
+                    case 'x':
+                        GB->IO.joypad.B = false;
+                        break;
+                    case 'a':
+                        GB->IO.joypad.Start = false;
+                        break;
+                    case 's':
+                        GB->IO.joypad.Select = false;
+                        break;
+                    default:
+                        break;
+                }
             default:
                 break;
         }
@@ -72,10 +126,19 @@ void do_frontend(s_GB* GB) {
 void run(s_GB* GB) {
     /* run the GB system (to be called after ROM is loaded) */
     int cycles = 0;
+    char status[LOG_LINE_LENGTH + 1];
 
     while (!GB->shut_down) {
         // 4 cycles (1 t cycle) per dot
         while (cycles < GB_DOTS_PER_SCANLINE * 4) {
+#ifdef LOG_CPU
+            if (GB->cpu.freeze) {
+                mGBA_log_format(&GB->cpu, status);
+                log_debug("%s", status);
+                getchar();
+            }
+#endif
+
             cycles += cpu_step(&GB->cpu);
         }
         cycles -= GB_DOTS_PER_SCANLINE * 4;
