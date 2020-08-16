@@ -41,7 +41,6 @@ typedef struct s_CPU {
     uint8_t registers[8];
     uint16_t SP, PC;
     uint8_t flags;
-    bool IME;
     bool freeze;
 
     int (*unprefixed[0x100])(struct s_CPU* cpu, uint8_t instruction);
@@ -125,5 +124,8 @@ void skip_boot_rom(s_CPU* cpu);
 
 int cpu_step(s_CPU* cpu);
 void cpu_init(s_CPU* cpu);
+void PUSH_PC(s_CPU* cpu);
+void POP_PC(s_CPU* cpu);
+void call_vector(s_CPU* cpu, uint16_t vector);
 
 #endif //CBOY_CPU_H

@@ -1,13 +1,3 @@
-void PUSH_PC(s_CPU* cpu) {
-    write_byte(cpu->mem, --cpu->SP, cpu->PC >> 8);    // push HI
-    write_byte(cpu->mem, --cpu->SP, cpu->PC & 0xff);  // push LO
-}
-
-void POP_PC(s_CPU* cpu) {
-    cpu->PC = read_byte(cpu->mem, cpu->SP++);        // pop LO
-    cpu->PC |= read_byte(cpu->mem, cpu->SP++) << 8;  // pop HI
-}
-
 int PUSH_r16(s_CPU* cpu, uint8_t instruction) {
     /*
      * c-f 5

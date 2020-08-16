@@ -12,9 +12,8 @@ typedef struct {
     uint8_t WRAM_b0[0x1000];        // C000 - CFFF
     uint8_t WRAM_bN[0x1000];        // D000 - DFFF
     uint8_t OAM[0xa0];              // FE00 - FE9F
-    s_IO* IO;                       // FF00 - FF7F
+    s_IO* IO;                       // FF00 - FF7F / IE at FFFF
     uint8_t HRAM[0x80];             // FF00 - FF7F
-    uint8_t IE;                     // FFFF
 } s_MEM;
 
 

@@ -1,24 +1,17 @@
 #include <stdint.h>
 
 #include "PPU.h"
-#include "../IO/IO.h"
 
 #include "log.h"
 
-#define _GRAYSCALE_2BPP_TO_RGB_FLIPPED(intensity) ((intensity << 22) | (intensity << 14) | (intensity << 6))
 #define GRAYSCALE_2BPP_TO_RGB(intensity) (3 - intensity) * 0x00555555
-
-
-void update_IO(s_PPU* ppu) {
-
-}
 
 void do_scanline(s_PPU* ppu, s_MEM* mem) {
     if (*ppu->scanline >= GB_HEIGHT)
         return;
 
     uint8_t Palette = ppu->IO->registers[reg_BGP];
-    s_LCDC LCDC = CAST_REGISTER(s_LCDC, ppu->IO->registers[reg_LCDC]);
+    s_LCDC LCDC = CAST_VAL_TO_REGISTER(s_LCDC, ppu->IO->registers[reg_LCDC]);
     uint16_t TileMapBaseAddress = LCDC.BGTileMapDisplay ? 0x1c00 : 0x1800;   // offset from VRAM start
     uint16_t TileDataBaseAddress = LCDC.BGWindowTileData ? 0x0000 : 0x0800;  // offset from VRAM start
     uint8_t Ty = (*ppu->scanline) >> 3; // / 8
@@ -50,6 +43,4 @@ void do_scanline(s_PPU* ppu, s_MEM* mem) {
             ppu->display[(*ppu->scanline) * GB_WIDTH + (Tx << 3) + dx] = GRAYSCALE_2BPP_TO_RGB(Color);
         }
     }
-
-    update_IO(ppu);
 }

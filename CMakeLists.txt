@@ -23,7 +23,7 @@ ADD_EXECUTABLE(
         src/System/IO/IO.h
         src/System/PPU/sprites.h
         src/System/IO/LCD.h
-        src/System/IO/LCD.c src/System/IO/joypad.c src/System/IO/joypad.h)
+        src/System/IO/joypad.c src/System/IO/joypad.h src/System/IO/interrupts.h src/System/IO/interrupts.c src/System/IO/LCD.c)
 
 # for logging / stuff I want to use in all files
 include_directories(./include)

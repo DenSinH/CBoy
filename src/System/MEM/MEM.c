@@ -71,8 +71,7 @@ void load_rom(s_MEM* mem, char file_name[]) {
             }                                                              \
             else if (address < 0xFF00) {                                   \
                 /*  not usable */                                          \
-                /*  todo: open bus? */                                     \
-                log_warn("unused section access @%x", address);            \
+                /* log_warn("unused section access @%x", address); */      \
                 unused_action()                                            \
                 break;                                                     \
             }                                                              \
@@ -88,7 +87,7 @@ void load_rom(s_MEM* mem, char file_name[]) {
             }                                                              \
             else {                                                         \
                 /*  IE */                                                  \
-                IE_action(mem->IE, 0)                                      \
+                IE_action(mem->IO->IE, 0)                                  \
                 break;                                                     \
             }                                                              \
         default:                                                           \

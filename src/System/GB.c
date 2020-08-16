@@ -26,6 +26,9 @@ s_GB* init_system() {
     GB->ppu.mem = &(GB->mem);
     GB->ppu.scanline = &GB->IO.registers[reg_LY];
     GB->cpu.IO = GB->mem.IO = GB->ppu.IO = &(GB->IO);
+
+    update_stat_mode(&GB->ppu, mode_OAM);
+
     cpu_init(&GB->cpu);
     display_init("CBoy", GB_WIDTH * GB_SCALE, GB_HEIGHT * GB_SCALE);
 
@@ -139,14 +142,47 @@ void run(s_GB* GB) {
             }
 #endif
 
+            if (interrupt_enabled(&GB->IO)) {
+                if (GB->IO.IME) {
+                    // throw interrupt
+                    log("Interrupt thrown");
+                    GB->IO.IME = false;
+
+                    uint8_t interrupt_id;
+                    // clear interrupt bit in IF (might be multiple)
+                    for (interrupt_id = 0; interrupt_id <= 4; interrupt_id++) {
+                        if (GB->IO.registers[reg_IF] & GB->IO.IE & (1 << interrupt_id)) {
+                            GB->IO.registers[reg_IF] &= ~(1 << interrupt_id);
+                            break;
+                        }
+                    }
+
+                    // call vector
+                    call_vector(&GB->cpu, 0x40 + (interrupt_id << 3));
+                }
+            }
+
             cycles += cpu_step(&GB->cpu);
+
+            if (GB->ppu.mode == mode_OAM && cycles > MODE_2_DOTS * 4) {
+                update_stat_mode(&GB->ppu, mode_transfer);
+            }
+            else if (GB->ppu.mode == mode_transfer && cycles > MODE_3_DOTS * 4) {
+                update_stat_mode(&GB->ppu, mode_HBlank);
+            }
         }
         cycles -= GB_DOTS_PER_SCANLINE * 4;
 
         (*GB->ppu.scanline)++;
-        if (*GB->ppu.scanline == GB_HEIGHT) {
+        if (*GB->ppu.scanline < GB_HEIGHT) {
+            // reset mode for next scanline
+            update_stat_mode(&GB->ppu, mode_OAM);
+        }
+        else if (*GB->ppu.scanline == GB_HEIGHT) {
             // VBlank start
             do_frontend(GB);
+            update_stat_mode(&GB->ppu, mode_VBlank);
+            request_interrupt(&GB->IO, Interrupt_VBlank);
 #ifdef FRAME_CAP
             nanosleep(&frame_delay, NULL);
 #endif
@@ -155,6 +191,8 @@ void run(s_GB* GB) {
             *GB->ppu.scanline = 0;
         }
         do_scanline(&GB->ppu, &GB->mem);
+
+        update_stat_line(&GB->ppu);
     }
 
     display_close();

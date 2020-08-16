@@ -201,7 +201,7 @@ int RET_cc(s_CPU* cpu, uint8_t instruction) {
             break;
         case 0xd9:
             // RETI
-            cpu->IME = true;
+            cpu->IO->IME = true;
             POP_PC(cpu);
             return 16;
         default:

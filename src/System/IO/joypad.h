@@ -9,7 +9,7 @@
 #define GB_SDL_BUTTON_UP_KEYSYM 0x40000052
 #define GB_SDL_BUTTON_DOWN_KEYSYM 0x40000051
 
-enum JOYP {
+typedef enum JOYP {
     JOYP_direction_keys = 0x10,
     JOYP_button_keys = 0x20
 } JOYP;

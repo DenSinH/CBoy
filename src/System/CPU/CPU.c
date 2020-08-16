@@ -28,3 +28,18 @@ int cpu_step(s_CPU* cpu) {
         return cpu->unprefixed[instruction](cpu, instruction);
     }
 }
+
+void PUSH_PC(s_CPU* cpu) {
+    write_byte(cpu->mem, --cpu->SP, cpu->PC >> 8);    // push HI
+    write_byte(cpu->mem, --cpu->SP, cpu->PC & 0xff);  // push LO
+}
+
+void POP_PC(s_CPU* cpu) {
+    cpu->PC = read_byte(cpu->mem, cpu->SP++);        // pop LO
+    cpu->PC |= read_byte(cpu->mem, cpu->SP++) << 8;  // pop HI
+}
+
+void call_vector(s_CPU* cpu, uint16_t vector) {
+    PUSH_PC(cpu);
+    cpu->PC = vector;
+}

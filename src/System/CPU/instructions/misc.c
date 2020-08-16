@@ -8,7 +8,7 @@ int DI_EI(s_CPU* cpu, uint8_t instruction) {
      * DI (F3) / EI (FB)
      */
     log("%s %x", (instruction == 0xfb) ? "EI" : "DI", instruction);
-    cpu->IME = (instruction == 0xfb);
+    cpu->IO->IME = (instruction == 0xfb);
     return 4;
 }
 
