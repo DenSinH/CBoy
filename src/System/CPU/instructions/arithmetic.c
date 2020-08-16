@@ -13,8 +13,9 @@ int INC_r8(s_CPU* cpu, uint8_t instruction) {
         return 4;
     }
     else {
-        set_r8(cpu, r8_HL, (old_val = get_r8(cpu, r8_HL)) + 1);
-        SET_FLAGS(cpu->flags, old_val + 1, 0, HALF_CARRY_8BIT_ADD(old_val, 1), cpu->flags & flag_C);
+        old_val = read_byte(cpu->mem, get_r16(cpu, r16_HL));
+        write_byte(cpu->mem, get_r16(cpu, r16_HL), old_val + 1);
+        SET_FLAGS(cpu->flags, (uint8_t)(old_val + 1) == 0, 0, HALF_CARRY_8BIT_ADD(old_val, 1), cpu->flags & flag_C);
         return 12;
     }
 }
@@ -108,6 +109,7 @@ void ARITH_A(s_CPU* cpu, uint8_t opcode, uint8_t operand) {
         case 0x1:
             // ADC
             cpu->registers[r8_A] += operand + ((cpu->flags & flag_C) ? 1 : 0);
+
             SET_FLAGS(
                     cpu->flags,
                     cpu->registers[r8_A] == 0,

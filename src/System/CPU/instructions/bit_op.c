@@ -45,6 +45,7 @@ int SWAP_HL(s_CPU* cpu, uint8_t instruction) {
 
     uint8_t value = read_byte(cpu->mem, get_r16(cpu, r16_HL));
     value = (value << 4) | (value >> 4);
+    write_byte(cpu->mem, get_r16(cpu, r16_HL), value);
     SET_FLAGS(cpu->flags, value == 0, 0, 0, 0);
 
     return 16;
