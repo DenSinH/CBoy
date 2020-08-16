@@ -18,6 +18,10 @@
 const struct timespec frame_delay = {.tv_sec = 0, .tv_nsec = 16000000 };  // 16ms
 #endif
 
+unsigned int prev_time = 0;
+unsigned int frame;
+char title[50];
+
 s_GB* init_system() {
     s_GB* GB = malloc(sizeof(s_GB));
     memset(GB, 0x00, sizeof(s_GB));
@@ -124,6 +128,18 @@ void handle_events(s_GB* GB) {
 void do_frontend(s_GB* GB) {
     blit_bitmap_32bppRGBA(GB->ppu.display, GB_WIDTH, GB_HEIGHT);
     handle_events(GB);
+
+    frame++;
+    unsigned int ticks = SDL_GetTicks();
+    unsigned int fps = (1000 * frame) / (ticks - prev_time);
+
+    sprintf(title, "CBoy <%d fps>", fps);
+    set_title(title);
+
+    if (frame == 1000) {
+        frame = 0;
+        prev_time = ticks;
+    }
 }
 
 void run(s_GB* GB) {
@@ -143,6 +159,10 @@ void run(s_GB* GB) {
 #endif
 
             if (interrupt_enabled(&GB->IO)) {
+
+                // unhalt on interrupt
+                GB->cpu.halted = false;
+
                 if (GB->IO.IME) {
                     // throw interrupt
                     log("Interrupt thrown");

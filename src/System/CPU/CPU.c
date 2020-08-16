@@ -16,6 +16,11 @@ void skip_boot_rom(s_CPU* cpu) {
 }
 
 int cpu_step(s_CPU* cpu) {
+    if (cpu->halted) {
+        // just return one dot when halted
+        return 4;
+    }
+
     uint8_t instruction = read_byte(cpu->mem, cpu->PC++);
 
     if (instruction == 0xCB) {

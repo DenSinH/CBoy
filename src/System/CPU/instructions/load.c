@@ -30,7 +30,7 @@ int LD_HL_r8_HALT(s_CPU* cpu, uint8_t instruction) {
         return 8;
     }
     else {
-        log_warn("unimplemented instruction: HALT");
+        cpu->halted = true;
         return 8;
     }
 }

@@ -77,3 +77,6 @@ void blit_bitmap_32bppRGBA(uint32_t raw[], int width, int height) {
     SDL_FreeSurface(gBitmap);
 }
 
+void set_title(const char title[]) {
+    SDL_SetWindowTitle(disp_Window, title);
+}

@@ -30,13 +30,6 @@ typedef enum {
     r16_SP = 6
 } e_r16;
 
-typedef enum {
-    flag_Z = 0x80,
-    flag_N = 0x40,
-    flag_H = 0x20,
-    flag_C = 0x10
-} flag;
-
 typedef union s_flags {
     struct {
         uint8_t unused : 4;
@@ -52,7 +45,7 @@ typedef struct s_CPU {
     uint8_t registers[8];
     uint16_t SP, PC;
     s_flags flags;
-    bool freeze;
+    bool halted;
 
     int (*unprefixed[0x100])(struct s_CPU* cpu, uint8_t instruction);
     int (*prefixed[0x100])(struct s_CPU* cpu, uint8_t instruction);
@@ -60,6 +53,8 @@ typedef struct s_CPU {
     s_MEM* mem;
     s_IO* IO;
 
+    // for debugging purposes
+    bool freeze;
 } s_CPU;
 
 static inline uint16_t get_r16(s_CPU* cpu, e_r16 index) {
