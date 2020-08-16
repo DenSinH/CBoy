@@ -12,28 +12,28 @@ int JP_cc_offset(s_CPU* cpu, uint8_t instruction) {
             return 12;
         case 0x20:
             // NZ
-            if (!(cpu->flags & flag_Z)) {
+            if (!(cpu->flags.Z)) {
                 cpu->PC += offset;
                 return 12;
             }
             return 8;
         case 0x28:
             // Z
-            if (cpu->flags & flag_Z) {
+            if (cpu->flags.Z) {
                 cpu->PC += offset;
                 return 12;
             }
             return 8;
         case 0x30:
             // NC
-            if (!(cpu->flags & flag_C)) {
+            if (!(cpu->flags.C)) {
                 cpu->PC += offset;
                 return 12;
             }
             return 8;
         case 0x38:
             // C
-            if (cpu->flags & flag_C) {
+            if (cpu->flags.C) {
                 cpu->PC += offset;
                 return 12;
             }
@@ -60,14 +60,14 @@ int JP_cc_direct_unused(s_CPU* cpu, uint8_t instruction) {
     switch(instruction) {
         case 0xc2:
             // NZ
-            if (!(cpu->flags & flag_Z)) {
+            if (!(cpu->flags.Z)) {
                 cpu->PC = address;
                 return 16;
             }
             return 12;
         case 0xd2:
             // NC
-            if (!(cpu->flags & flag_C)) {
+            if (!(cpu->flags.C)) {
                 cpu->PC = address;
                 return 16;
             }
@@ -78,14 +78,14 @@ int JP_cc_direct_unused(s_CPU* cpu, uint8_t instruction) {
             return 16;
         case 0xca:
             // Z
-            if (cpu->flags & flag_Z) {
+            if (cpu->flags.Z) {
                 cpu->PC = address;
                 return 16;
             }
             return 12;
         case 0xda:
             // C
-            if (cpu->flags & flag_C) {
+            if (cpu->flags.C) {
                 cpu->PC = address;
                 return 16;
             }
@@ -123,7 +123,7 @@ int CALL_cc(s_CPU* cpu, uint8_t instruction) {
             return 24;
         case 0xc4:
             // NZ
-            if (!(cpu->flags & flag_Z)) {
+            if (!(cpu->flags.Z)) {
                 PUSH_PC(cpu);
                 cpu->PC = address;
                 return 24;
@@ -131,7 +131,7 @@ int CALL_cc(s_CPU* cpu, uint8_t instruction) {
             return 12;
         case 0xcc:
             // Z
-            if (cpu->flags & flag_Z) {
+            if (cpu->flags.Z) {
                 PUSH_PC(cpu);
                 cpu->PC = address;
                 return 24;
@@ -139,7 +139,7 @@ int CALL_cc(s_CPU* cpu, uint8_t instruction) {
             return 12;
         case 0xd4:
             // NC
-            if (!(cpu->flags & flag_C)) {
+            if (!(cpu->flags.C)) {
                 PUSH_PC(cpu);
                 cpu->PC = address;
                 return 24;
@@ -147,7 +147,7 @@ int CALL_cc(s_CPU* cpu, uint8_t instruction) {
             return 12;
         case 0xdc:
             // C
-            if (cpu->flags & flag_C) {
+            if (cpu->flags.C) {
                 PUSH_PC(cpu);
                 cpu->PC = address;
                 return 24;
@@ -168,28 +168,28 @@ int RET_cc(s_CPU* cpu, uint8_t instruction) {
     switch (instruction) {
         case 0xc0:
             // NZ
-            if (!(cpu->flags & flag_Z)) {
+            if (!(cpu->flags.Z)) {
                 POP_PC(cpu);
                 return 20;
             }
             return 8;
         case 0xd0:
             // NC
-            if (!(cpu->flags & flag_C)) {
+            if (!(cpu->flags.C)) {
                 POP_PC(cpu);
                 return 20;
             }
             return 8;
         case 0xc8:
             // Z
-            if (cpu->flags & flag_Z) {
+            if (cpu->flags.Z) {
                 POP_PC(cpu);
                 return 20;
             }
             return 8;
         case 0xd8:
             // C
-            if (cpu->flags & flag_C) {
+            if (cpu->flags.C) {
                 POP_PC(cpu);
                 return 20;
             }

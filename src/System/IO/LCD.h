@@ -17,6 +17,7 @@ typedef union s_LCDC {
         bool WindowTileMapDisplay:  1;
         bool LCDDisplayEnable:      1;
     };
+    uint8_t reg;
 } s_LCDC;
 
 typedef enum STAT_mode {
@@ -35,6 +36,7 @@ typedef union s_STAT {
         bool OAMIRQ:                1;
         bool CoincidenceIRQ:        1;
     };
+    uint8_t reg;
 } s_STAT;
 
 #endif //CBOY_LCD_H

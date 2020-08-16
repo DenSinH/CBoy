@@ -9,13 +9,17 @@ int INC_r8(s_CPU* cpu, uint8_t instruction) {
     uint8_t r8 = instruction >> 3;
     if (r8 != r8_HL) {
         old_val = cpu->registers[r8]++;
-        SET_FLAGS(cpu->flags, cpu->registers[r8] == 0, 0, HALF_CARRY_8BIT_ADD(old_val, 1), cpu->flags & flag_C);
+        cpu->flags.Z =  cpu->registers[r8] == 0;
+        cpu->flags.N =  0;
+        cpu->flags.H =  HALF_CARRY_8BIT_ADD(old_val, 1);
         return 4;
     }
     else {
         old_val = read_byte(cpu->mem, get_r16(cpu, r16_HL));
         write_byte(cpu->mem, get_r16(cpu, r16_HL), old_val + 1);
-        SET_FLAGS(cpu->flags, (uint8_t)(old_val + 1) == 0, 0, HALF_CARRY_8BIT_ADD(old_val, 1), cpu->flags & flag_C);
+        cpu->flags.Z =  (uint8_t)(old_val + 1) == 0;
+        cpu->flags.N =  0;
+        cpu->flags.H =  HALF_CARRY_8BIT_ADD(old_val, 1);
         return 12;
     }
 }
@@ -43,7 +47,9 @@ int DEC_r8(s_CPU* cpu, uint8_t instruction) {
     uint8_t r8 = instruction >> 3;
     if (r8 != r8_HL) {
         old_val = cpu->registers[r8]--;
-        SET_FLAGS(cpu->flags, cpu->registers[r8] == 0, 1, HALF_CARRY_8BIT_SUB(old_val, 1), cpu->flags & flag_C);
+        cpu->flags.Z =  cpu->registers[r8] == 0;
+        cpu->flags.N =  1;
+        cpu->flags.H =  HALF_CARRY_8BIT_SUB(old_val, 1);
         return 4;
     }
     else {
@@ -51,7 +57,9 @@ int DEC_r8(s_CPU* cpu, uint8_t instruction) {
         old_val = read_byte(cpu->mem, HL);
         write_byte(cpu->mem, HL, old_val - 1);
 
-        SET_FLAGS(cpu->flags, (old_val - 1) == 0, 1, HALF_CARRY_8BIT_SUB(old_val, 1), cpu->flags & flag_C);
+        cpu->flags.Z =  (old_val - 1) == 0;
+        cpu->flags.N =  1;
+        cpu->flags.H =  HALF_CARRY_8BIT_SUB(old_val, 1);
         return 12;
     }
 }
@@ -79,113 +87,85 @@ int ADD_HL_r16(s_CPU* cpu, uint8_t instruction) {
     operand = get_r16(cpu, (instruction >> 3) & 0xfffe);
     set_r16(cpu, r16_HL, old_val + operand);
 
-    SET_FLAGS(
-            cpu->flags,
-            cpu->flags & flag_Z,
-            0,
-            HALF_CARRY_16BIT_ADD(old_val, operand),
-            old_val + operand > 0xffff
-    );
+    cpu->flags.N = 0;
+    cpu->flags.H = HALF_CARRY_16BIT_ADD(old_val, operand);
+    cpu->flags.C = old_val + operand > 0xffff;
 
     return 8;
 }
 
 
-void ARITH_A(s_CPU* cpu, uint8_t opcode, uint8_t operand) {
+static inline void ARITH_A(s_CPU* cpu, uint8_t opcode, uint8_t operand) {
     log("Operating on A: code %x with %02x", opcode, operand);
     uint8_t old_val = cpu->registers[r8_A];
     switch (opcode) {
         case 0x0:
             // ADD
             cpu->registers[r8_A] += operand;
-            SET_FLAGS(
-                    cpu->flags,
-                    cpu->registers[r8_A] == 0,
-                    0,
-                    HALF_CARRY_8BIT_ADD(old_val, operand),
-                    (old_val + operand) > 0xff
-            );
+            cpu->flags.Z = cpu->registers[r8_A] == 0;
+            cpu->flags.N = 0;
+            cpu->flags.H = HALF_CARRY_8BIT_ADD(old_val, operand);
+            cpu->flags.C = (old_val + operand) > 0xff;
             break;
         case 0x1:
             // ADC
-            cpu->registers[r8_A] += operand + ((cpu->flags & flag_C) ? 1 : 0);
+            cpu->registers[r8_A] += operand + (cpu->flags.C ? 1 : 0);
 
-            SET_FLAGS(
-                    cpu->flags,
-                    cpu->registers[r8_A] == 0,
-                    0,
-                    HALF_CARRY_8BIT_ADD_C(old_val, operand, (cpu->flags & flag_C) ? 1 : 0),
-                    (old_val + operand + ((cpu->flags & flag_C) ? 1 : 0)) > 0xff
-            );
+            cpu->flags.Z = cpu->registers[r8_A] == 0;
+            cpu->flags.N = 0;
+            cpu->flags.H = HALF_CARRY_8BIT_ADD_C(old_val, operand, cpu->flags.C ? 1 : 0);
+            cpu->flags.C = (old_val + operand + (cpu->flags.C ? 1 : 0)) > 0xff;
             break;
         case 0x2:
             // SUB
             cpu->registers[r8_A] -= operand;
-            SET_FLAGS(
-                    cpu->flags,
-                    cpu->registers[r8_A] == 0,
-                    1,
-                    HALF_CARRY_8BIT_SUB(old_val, operand),
-                    // I looked up how uint8_t's behaved for this:
-                    (old_val - operand) < 0
-            );
+            cpu->flags.Z = cpu->registers[r8_A] == 0;
+            cpu->flags.N = 1;
+            cpu->flags.H = HALF_CARRY_8BIT_SUB(old_val, operand);
+            // I looked up how uint8_t's behaved for this:
+            cpu->flags.C = (old_val - operand) < 0;
             break;
         case 0x3:
             // SBC
-            cpu->registers[r8_A] -= operand + ((cpu->flags & flag_C) ? 1 : 0);
-            SET_FLAGS(
-                    cpu->flags,
-                    cpu->registers[r8_A] == 0,
-                    1,
-                    HALF_CARRY_8BIT_SUB_C(old_val, operand, (cpu->flags & flag_C) ? 1 : 0),
-                    // I looked up how uint8_t's behaved for this:
-                    (old_val - (operand + ((cpu->flags & flag_C) ? 1 : 0))) < 0
-            );
+            cpu->registers[r8_A] -= operand + (cpu->flags.C ? 1 : 0);
+            cpu->flags.Z = cpu->registers[r8_A] == 0;
+            cpu->flags.N = 1;
+            cpu->flags.H = HALF_CARRY_8BIT_SUB_C(old_val, operand, cpu->flags.C ? 1 : 0);
+            cpu->flags.C = (old_val - (operand + (cpu->flags.C ? 1 : 0))) < 0;
             break;
         case 0x4:
             // AND
             cpu->registers[r8_A] &= operand;
-            SET_FLAGS(
-                    cpu->flags,
-                    cpu->registers[r8_A] == 0,
-                    0,
-                    1,
-                    0
-            );
+            cpu->flags.Z = cpu->registers[r8_A] == 0;
+            cpu->flags.N = 0;
+            cpu->flags.H = 1;
+            cpu->flags.C = 0;
             break;
         case 0x5:
             // XOR
             cpu->registers[r8_A] ^= operand;
-            SET_FLAGS(
-                    cpu->flags,
-                    cpu->registers[r8_A] == 0,
-                    0,
-                    0,
-                    0
-            );
+            cpu->flags.Z = cpu->registers[r8_A] == 0;
+            cpu->flags.N = 0;
+            cpu->flags.H = 0;
+            cpu->flags.C = 0;
             break;
         case 0x6:
             // OR
             cpu->registers[r8_A] |= operand;
-            SET_FLAGS(
-                    cpu->flags,
-                    cpu->registers[r8_A] == 0,
-                    0,
-                    0,
-                    0
-            );
+            cpu->flags.Z = cpu->registers[r8_A] == 0;
+            cpu->flags.N = 0;
+            cpu->flags.H = 0;
+            cpu->flags.C = 0;
             break;
         case 0x7:
             // CP
             // SUB without storing
-            SET_FLAGS(
-                    cpu->flags,
-                    (cpu->registers[r8_A] - operand) == 0,
-                    1,
-                    HALF_CARRY_8BIT_SUB(cpu->registers[r8_A], operand),
-                    // I looked up how uint8_t's behaved for this:
-                    (cpu->registers[r8_A] - operand) < 0
-            );
+
+            cpu->flags.Z = (cpu->registers[r8_A] - operand) == 0;
+            cpu->flags.N = 1;
+            cpu->flags.H = HALF_CARRY_8BIT_SUB(cpu->registers[r8_A], operand);
+            // I looked up how uint8_t's behaved for this:
+            cpu->flags.C = (cpu->registers[r8_A] - operand) < 0;
             break;
         default:
             log_fatal("invalid opcode for arithmetic A: %x", opcode);

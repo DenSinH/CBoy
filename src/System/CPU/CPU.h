@@ -37,10 +37,21 @@ typedef enum {
     flag_C = 0x10
 } flag;
 
+typedef union s_flags {
+    struct {
+        uint8_t unused : 4;
+        bool C         : 1;
+        bool H         : 1;
+        bool N         : 1;
+        bool Z         : 1;
+    };
+    uint8_t flags;
+} s_flags;
+
 typedef struct s_CPU {
     uint8_t registers[8];
     uint16_t SP, PC;
-    uint8_t flags;
+    s_flags flags;
     bool freeze;
 
     int (*unprefixed[0x100])(struct s_CPU* cpu, uint8_t instruction);
@@ -50,19 +61,6 @@ typedef struct s_CPU {
     s_IO* IO;
 
 } s_CPU;
-
-static inline uint8_t get_r8(s_CPU* cpu, e_r8 index) {
-    if (index == r8_HL)
-        return read_byte(cpu->mem, (uint16_t)(cpu->registers[index + 1] | (cpu->registers[index] << 8)));
-    return cpu->registers[index];
-}
-
-static inline void set_r8(s_CPU* cpu, e_r8 index, uint8_t value) {
-    if (index == r8_HL)
-        write_byte(cpu->mem, (uint16_t)(cpu->registers[index + 1] | (cpu->registers[index] << 8)), value);
-    else
-        cpu->registers[index] = value;
-}
 
 static inline uint16_t get_r16(s_CPU* cpu, e_r16 index) {
     /* get 16 bit register from cpu based on index */
@@ -86,17 +84,12 @@ static inline void set_r16(s_CPU* cpu, e_r16 index, uint16_t value) {
 #define HALF_CARRY_8BIT_SUB(op1, op2) ((op1 & 0xF) < (op2 & 0xF))
 #define HALF_CARRY_8BIT_SUB_C(op1, op2, C) ((op1 & 0xF) < ((op2 & 0xF) + (C)))
 #define HALF_CARRY_16BIT_SUB(op1, op2) ((op1 & 0xFFF) < (op2 & 0xFFF))
+
 #define HALF_CARRY_8BIT_ADD(op1, op2) (((op1 & 0xF) + (op2 & 0xF)) > 0x0f)
 #define HALF_CARRY_8BIT_ADD_C(op1, op2, C) (((op1 & 0xF) + (op2 & 0xF) + (C)) > 0x0f)
-#define HALF_CARRY_16BIT_ADD(op1, op2) (((op1 & 0xFFF) + (op2 & 0xFFF)) & 0x1000)
+#define HALF_CARRY_16BIT_ADD(op1, op2) (((op1 & 0xFFF) + (op2 & 0xFFF)) > 0xfff)
 
 // half carry is the result of the last adder operation, so for 16 bit the mask is 0xFFF instead of 0xFF
-
-#define SET_FLAGS(flags, Z, N, H, C)      \
-    flags = (Z ? flag_Z : 0) |            \
-            (N ? flag_N : 0) |            \
-            (H ? flag_H : 0) |            \
-            (C ? flag_C : 0)
 
 #define LOG_LINE_LENGTH 68
 static inline void mGBA_log_format(s_CPU* cpu, char dest[LOG_LINE_LENGTH + 1]) {
@@ -105,7 +98,7 @@ static inline void mGBA_log_format(s_CPU* cpu, char dest[LOG_LINE_LENGTH + 1]) {
         sprintf(
             dest, "A: %02X F: %02X B: %02X C: %02X D: %02X E: %02X H: %02X L: %02X SP: %04X PC: 00:%04X",
             cpu->registers[r8_A],
-            cpu->flags,
+            cpu->flags.flags,
             cpu->registers[r8_B],
             cpu->registers[r8_C],
             cpu->registers[r8_D],

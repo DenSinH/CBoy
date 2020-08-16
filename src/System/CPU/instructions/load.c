@@ -1,3 +1,12 @@
+int LD_HL_u8(s_CPU* cpu, uint8_t instruction) {
+    /*
+     * 36
+     */
+    log("LD_HL_u8 %x", instruction);
+
+    write_byte(cpu->mem, get_r16(cpu, r16_HL), read_byte(cpu->mem, cpu->PC++));
+    return 12;
+}
 
 int LD_r8_u8(s_CPU* cpu, uint8_t instruction) {
     /*
@@ -6,9 +15,8 @@ int LD_r8_u8(s_CPU* cpu, uint8_t instruction) {
      */
     log("LD_r8_u8 %x", instruction);
 
-    uint8_t value = read_byte(cpu->mem, cpu->PC++);
-    set_r8(cpu, instruction >> 3, value);
-    return ((instruction >> 3) == r8_HL) ? 12 : 8;
+    cpu->registers[instruction >> 3] = read_byte(cpu->mem, cpu->PC++);
+    return 8;
 }
 
 int LD_HL_r8_HALT(s_CPU* cpu, uint8_t instruction) {
@@ -22,7 +30,7 @@ int LD_HL_r8_HALT(s_CPU* cpu, uint8_t instruction) {
         return 8;
     }
     else {
-        // log_fatal("unimplemented instruction: HALT");
+        log_warn("unimplemented instruction: HALT");
         return 8;
     }
 }

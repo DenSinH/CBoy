@@ -19,7 +19,8 @@ int CPL(s_CPU* cpu, uint8_t instruction) {
     log("CPL %x", instruction);
 
     cpu->registers[r8_A] = ~cpu->registers[r8_A];
-    SET_FLAGS(cpu->flags, cpu->flags & flag_Z, 1, 1, cpu->flags & flag_C);
+    cpu->flags.N =  1;
+    cpu->flags.H =  1;
     return 4;
 }
 
@@ -28,7 +29,9 @@ int CCF(s_CPU* cpu, uint8_t instruction) {
      * 3F
      */
     log("CCF %x", instruction);
-    SET_FLAGS(cpu->flags, cpu->flags & flag_Z, 0, 0, !(cpu->flags & flag_C));
+    cpu->flags.N =  0;
+    cpu->flags.H =  0;
+    cpu->flags.C =  !cpu->flags.C;
     return 4;
 }
 
@@ -37,7 +40,9 @@ int SCF(s_CPU* cpu, uint8_t instruction) {
      * 37
      */
     log("SCF %x", instruction);
-    SET_FLAGS(cpu->flags, cpu->flags & flag_Z, 0, 0, 1);
+    cpu->flags.N =  0;
+    cpu->flags.H =  0;
+    cpu->flags.C =  1;
     return 4;
 }
 
@@ -46,9 +51,24 @@ int DAA(s_CPU* cpu, uint8_t instruction) {
      * 27
      */
     log("DAA %x", instruction);
-    cpu->registers[r8_A] = ((cpu->registers[r8_A] / 10) << 4) | (cpu->registers[r8_A] % 10);
+    /* thank you https://ehaskins.com/2018-01-30%20Z80%20DAA/ */
+    uint8_t correction = 0;
+    bool setC = false;
 
-    // todo: Carry flag?
-    SET_FLAGS(cpu->flags, cpu->registers[r8_A] == 0, cpu->flags & flag_N, 0, cpu->flags & flag_C);
+    if ((cpu->flags.H) || (!(cpu->flags.N) && ((cpu->registers[r8_A] & 0xf) > 9))) {
+        correction |= 6;
+    }
+
+    if ((cpu->flags.C) || ((!(cpu->flags.N) && (cpu->registers[r8_A] > 0x99)))) {
+        correction |= 0x60;
+        setC = true;
+    }
+
+    cpu->registers[r8_A] += (cpu->flags.N) ? -correction : correction;
+
+    cpu->flags.Z = cpu->registers[r8_A] == 0;
+    cpu->flags.N = cpu->flags.N;
+    cpu->flags.H = 0;
+    cpu->flags.C = setC;
     return 4;
 }

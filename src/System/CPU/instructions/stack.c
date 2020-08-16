@@ -14,7 +14,7 @@ int PUSH_r16(s_CPU* cpu, uint8_t instruction) {
     else {
         // push AF
         write_byte(cpu->mem, --cpu->SP, cpu->registers[r8_A]);       // push HI
-        write_byte(cpu->mem, --cpu->SP, cpu->flags);                 // push LO
+        write_byte(cpu->mem, --cpu->SP, cpu->flags.flags);           // push LO
     }
     return 16;
 }
@@ -34,7 +34,7 @@ int POP_r16(s_CPU* cpu, uint8_t instruction) {
     }
     else {
         // pop AF
-        cpu->flags = read_byte(cpu->mem, cpu->SP++) & 0xf0;                      // pop LO
+        cpu->flags.flags = read_byte(cpu->mem, cpu->SP++) & 0xf0;                // pop LO
         cpu->registers[r8_A] = read_byte(cpu->mem, cpu->SP++);                   // pop HI
     }
     return 12;
@@ -66,13 +66,10 @@ int ADD_SP_i8(s_CPU* cpu, uint8_t instruction) {
 
     int8_t offset = (int8_t)read_byte(cpu->mem, cpu->PC++);
 
-    SET_FLAGS(
-            cpu->flags,
-            0,
-            0,
-            HALF_CARRY_8BIT_ADD(cpu->SP & 0xff, offset),
-            ((cpu->SP & 0xff) + (uint8_t)offset) > 0xff
-    );
+    cpu->flags.Z = 0;
+    cpu->flags.N = 0;
+    cpu->flags.H = HALF_CARRY_8BIT_ADD(cpu->SP & 0xff, offset);
+    cpu->flags.C = ((cpu->SP & 0xff) + (uint8_t)offset) > 0xff;
     cpu->SP += offset;
 
     return 16;
@@ -85,13 +82,10 @@ int LD_HL_SP_i8(s_CPU* cpu, uint8_t instruction) {
     int8_t offset = (int8_t)read_byte(cpu->mem, cpu->PC++);
     set_r16(cpu, r16_HL, cpu->SP + offset);
 
-    SET_FLAGS(
-        cpu->flags,
-        0,
-        0,
-        HALF_CARRY_8BIT_ADD(cpu->SP & 0xff, (int16_t)offset),
-        ((cpu->SP & 0xff) + (uint8_t)offset) > 0xff
-    );
+    cpu->flags.Z = 0;
+    cpu->flags.N = 0;
+    cpu->flags.H = HALF_CARRY_8BIT_ADD(cpu->SP & 0xff, (int16_t)offset);
+    cpu->flags.C = ((cpu->SP & 0xff) + (uint8_t)offset) > 0xff;
 
     return 12;
 }

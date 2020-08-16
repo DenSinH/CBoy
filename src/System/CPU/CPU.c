@@ -10,7 +10,7 @@ void skip_boot_rom(s_CPU* cpu) {
     cpu->registers[r8_H] = 0x01;
     cpu->registers[r8_L] = 0x4d;
     cpu->registers[r8_A] = 0x01;
-    cpu->flags = 0xb0;
+    cpu->flags.flags = 0xb0;
     cpu->SP = 0xfffe;
     cpu->PC = 0x0100;
 }

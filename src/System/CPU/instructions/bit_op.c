@@ -8,12 +8,9 @@ int BIT_u3_HL(s_CPU* cpu, uint8_t instruction) {
 
     log("BIT_u3_HL %x", instruction);
 
-    SET_FLAGS(
-            cpu->flags,
-            !(read_byte(cpu->mem, get_r16(cpu, r16_HL)) & (1 << ((instruction & 0x38) >> 3))),
-            0,
-            1,
-            cpu->flags & flag_C);
+    cpu->flags.Z = !(read_byte(cpu->mem, get_r16(cpu, r16_HL)) & (1 << ((instruction & 0x38) >> 3)));
+    cpu->flags.N = 0;
+    cpu->flags.H = 1;
 
     return 4;
 }
@@ -27,12 +24,9 @@ int BIT_u3_r8(s_CPU* cpu, uint8_t instruction) {
 
     log("BIT_u3_r8 %x", instruction);
 
-    SET_FLAGS(
-            cpu->flags,
-            !(cpu->registers[instruction & 0x7] & (1 << ((instruction & 0x38) >> 3))),
-            0,
-            1,
-            cpu->flags & flag_C);
+    cpu->flags.Z = !(cpu->registers[instruction & 0x7] & (1 << ((instruction & 0x38) >> 3)));
+    cpu->flags.N = 0;
+    cpu->flags.H = 1;
 
     return 4;
 }
@@ -46,7 +40,11 @@ int SWAP_HL(s_CPU* cpu, uint8_t instruction) {
     uint8_t value = read_byte(cpu->mem, get_r16(cpu, r16_HL));
     value = (value << 4) | (value >> 4);
     write_byte(cpu->mem, get_r16(cpu, r16_HL), value);
-    SET_FLAGS(cpu->flags, value == 0, 0, 0, 0);
+
+    cpu->flags.Z = value == 0;
+    cpu->flags.N = 0;
+    cpu->flags.H = 0;
+    cpu->flags.C = 0;
 
     return 16;
 }
@@ -59,7 +57,11 @@ int SWAP_r8(s_CPU* cpu, uint8_t instruction) {
     log("SWAP_r8 %x", instruction);
 
     cpu->registers[instruction & 7] = (cpu->registers[instruction & 7] << 4) | (cpu->registers[instruction & 7] >> 4);
-    SET_FLAGS(cpu->flags, cpu->registers[instruction & 7] == 0, 0, 0, 0);
+
+    cpu->flags.Z = cpu->registers[instruction & 7] == 0;
+    cpu->flags.N = 0;
+    cpu->flags.H = 0;
+    cpu->flags.C = 0;
 
     return 8;
 }

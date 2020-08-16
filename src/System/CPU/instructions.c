@@ -61,6 +61,11 @@ void cpu_init(s_CPU* cpu) {
             cpu->unprefixed[instruction] = DEC_r8;
         }
         // col 6 / E
+        /* order is important in the next 2 decodings: */
+        else if (instruction == 0x36) {
+            // 0011 0110
+            cpu->unprefixed[instruction] = LD_HL_u8;
+        }
         else if ((instruction & 0xc7) == 0x06) {
             // 00xx x110
             cpu->unprefixed[instruction] = LD_r8_u8;
