@@ -34,6 +34,8 @@ void IO_write(s_IO* IO, uint16_t address, uint8_t value) {
         case reg_STAT:
             IO->registers[address] = value & 0x7f;   // unused bit
             break;
+        case reg_LY:
+            break;
         case reg_LYC:
             IO->registers[address] = value;
             // the GB "constantly checks" for this, so we have to maybe request an interrupt here as well

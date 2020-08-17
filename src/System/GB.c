@@ -82,6 +82,14 @@ void handle_events(s_GB* GB) {
                             printf("%02x ", GB->mem.VRAM[i]);
                         }
                         break;
+                    case 'o':
+                        for (int i = 0; i < sizeof(GB->mem.OAM); i++) {
+                            if ((i & 0x0f) == 0) {
+                                printf("\n %04x: ", i);
+                            }
+                            printf("%02x ", GB->mem.OAM[i]);
+                        }
+                        break;
                     case 'i':
                         mGBA_log_format(&GB->cpu, log);
                         printf("%s\n", log);
@@ -130,13 +138,14 @@ void do_frontend(s_GB* GB) {
     handle_events(GB);
 
     frame++;
-    unsigned int ticks = SDL_GetTicks();
-    unsigned int fps = (1000 * frame) / (ticks - prev_time);
 
-    sprintf(title, "CBoy <%d fps>", fps);
-    set_title(title);
+    if (frame == 60) {
+        unsigned int ticks = SDL_GetTicks();
+        unsigned int fps = (1000 * frame) / (ticks - prev_time);
 
-    if (frame == 1000) {
+        sprintf(title, "CBoy <%d fps>", fps);
+        set_title(title);
+
         frame = 0;
         prev_time = ticks;
     }

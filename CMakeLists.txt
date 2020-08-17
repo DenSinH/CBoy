@@ -23,7 +23,11 @@ ADD_EXECUTABLE(
         src/System/IO/IO.h
         src/System/PPU/sprites.h
         src/System/IO/LCD.h
-        src/System/IO/joypad.c src/System/IO/joypad.h src/System/IO/interrupts.h src/System/IO/interrupts.c src/System/IO/LCD.c)
+        src/System/IO/joypad.c
+        src/System/IO/joypad.h
+        src/System/IO/interrupts.h
+        src/System/IO/interrupts.c
+        src/System/IO/LCD.c)
 
 # for logging / stuff I want to use in all files
 include_directories(./include)
@@ -33,5 +37,5 @@ target_link_libraries(CBoy PRIVATE ${SDL2_LIBRARY} -lmingw32 -lSDL2main -lSDL2)
 # add to turn on aggressive optimizations you can also add -O1 -O2 or -O3 to ADD_COMPILE_OPTIONS
 # or -Ofast (super fast) or -Oz (small code and optimized)
 # -O3 being the most aggressive
-ADD_COMPILE_OPTIONS(-Wall -Werror -fsanitize=address)
+ADD_COMPILE_OPTIONS(-Wall -Werror -fsanitize=address -O2)
 ADD_LINK_OPTIONS(-fsanitize=address)

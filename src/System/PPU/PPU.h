@@ -5,6 +5,7 @@
 
 #include "../MEM/MEM.h"
 #include "../IO/IO.h"
+#include "sprites.h"
 
 #define GB_WIDTH 160
 #define GB_HEIGHT 144
@@ -18,6 +19,13 @@ typedef struct s_PPU {
     uint32_t display[GB_WIDTH * GB_HEIGHT];
     uint8_t* scanline;
     STAT_mode mode;
+
+    s_sprite sprites[10];
+    uint8_t number_of_sprites;
+
+    uint8_t BG_pixels[GB_WIDTH];
+    uint8_t sprite_pixels[GB_WIDTH];
+    bool sprite_prio[GB_WIDTH];
 
     s_MEM* mem;
     s_IO* IO;

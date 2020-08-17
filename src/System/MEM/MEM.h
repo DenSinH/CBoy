@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include "../IO/IO.h"
 
+#define OAM_SIZE 0xa0
+
 typedef struct {
     uint8_t ROM_b00[0x4000];        // 0000 - 3FFF
     uint8_t ROM_bNN[0x4000];        // 4000 - 7FFF
@@ -11,7 +13,7 @@ typedef struct {
     uint8_t eRAM[0x2000];           // A000 - BFFF
     uint8_t WRAM_b0[0x1000];        // C000 - CFFF
     uint8_t WRAM_bN[0x1000];        // D000 - DFFF
-    uint8_t OAM[0xa0];              // FE00 - FE9F
+    uint8_t OAM[OAM_SIZE];          // FE00 - FE9F
     s_IO* IO;                       // FF00 - FF7F / IE at FFFF
     uint8_t HRAM[0x80];             // FF00 - FF7F
 } s_MEM;
